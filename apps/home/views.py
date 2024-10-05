@@ -159,6 +159,9 @@ def editar_observacion_view(request, id):
     return render(request, 'home/editar-observacion.html', {'formulario':formulario})
 
 
+
+
+
 @login_required(login_url="/login/")
 def eliminar_observacion_view(request, id):
     obj = Prueba.objects.get(id=id)
