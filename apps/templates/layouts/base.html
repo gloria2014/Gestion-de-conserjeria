@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="{{ ASSETS_ROOT }}/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="{{ ASSETS_ROOT }}/img/favicon.png">
+
+  <title>
+    Gestion Conserjeria - {% block title %}{% endblock %}
+  </title>
+
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="{{ ASSETS_ROOT }}/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="{{ ASSETS_ROOT }}/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link href="{{ ASSETS_ROOT }}/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="{{ ASSETS_ROOT }}/css/soft-ui-dashboard.css?v=1.0.6" rel="stylesheet" />
+  
+  <link id="pagestyle_dark" href="{{ ASSETS_ROOT }}/css/dark-theme-core.css" rel="stylesheet" />
+
+    <!-- Bootstrap Datepicker CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+
+  <!-- Specific CSS goes HERE -->
+  {% block stylesheets %}{% endblock stylesheets %}  
+
+</head>
+<body class="g-sidenav-show  bg-gray-100">
+  
+  {% include "includes/sidebar.html" %} 
+
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+
+    {% include "includes/navigation.html" %} 
+
+    {% block content %}{% endblock content %}
+
+  </main>
+
+  <!-- APP Configurator -->
+  {% include "includes/fixed-plugin.html" %} 
+
+  <!-- Core JS Files -->
+  {% include "includes/scripts.html" %}
+
+  <!-- Specific JS goes HERE --> 
+  {% block javascripts %}{% endblock javascripts %}  
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Bootstrap Datepicker JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function () 
+    {
+      //alert("hola 2222");
+        $('#id_region').change(function () {
+            var url = '{% url "ajax_load_comunas" %}';  // URL de la vista que devuelve las comunas
+            var regionId = $(this).val();  // Obtener el ID de la región seleccionada
+
+            $.ajax({
+                url: url,
+                data: {
+                    'region_id': regionId
+                },
+                success: function (data) {
+                    $('#id_comuna').html('<option value="">Seleccione</option>'); 
+                    $.each(data, function (key, value) {
+                        $('#id_comuna').append('<option value="' + value.id + '">' + value.nombre + '</option>');
+                    });
+                }
+            });
+        });
+
+        $('#id_fecha_ingreso').datepicker({
+          format: 'yyyy-mm-dd',
+          autoclose: true,
+          todayHighlight: true
+      });
+        
+    });
+    </script>
+
+  <!-- <script>
+    $(document).ready(function() {
+      // Initialize Bootstrap Datepicker
+      $('#fecha_ingreso').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayHighlight: true
+      });
+  
+      //alert('Hello World');
+      const url = $("#personForm").attr("data-regiones-url");
+  
+      $.ajax({
+        url: url,
+        success: function(data) {
+          console.log("Regiones data: :: ", data);
+          let options = '<option value="">Seleccione una región</option>';
+          for (let i = 0; i < data.length; i++) {
+            let region = data[i];
+            options += `<option value="${region.id}">${region.nombre}</option>`;
+          }
+          $("#id_region").html(options);
+        },
+        error: function(xhr, status, error) {
+          console.error("AJAX error:", status, error);
+        }
+      });
+  
+      $("#id_region").change(function() {
+        const urlComunas = $("#personForm").attr("data-comunas-url");
+        const regionId = $(this).val();
+        console.log("Selected region ID:", regionId);
+  
+        $.ajax({
+          url: urlComunas,
+          data: {
+            'region_id': regionId
+          },
+          success: function(data) {
+            console.log("Comunas data:", data);
+            let options = '<option value="">Seleccione una comuna</option>';
+            for (let i = 0; i < data.length; i++) {
+              let comuna = data[i];
+              options += `<option value="${comuna.id}">${comuna.nombre}</option>`;
+            }
+            $("#id_comuna").html(options);
+          },
+          error: function(xhr, status, error) {
+            console.error("AJAX error:", status, error);
+          }
+        });
+      });
+    });
+  </script> -->
+
+  <!-- Github buttons -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>  
+  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="{{ ASSETS_ROOT }}/js/soft-ui-dashboard.min.js?v=1.0.6"></script>
+  
+</body>
+</html>

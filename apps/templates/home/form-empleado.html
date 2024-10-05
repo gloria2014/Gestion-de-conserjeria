@@ -1,0 +1,44 @@
+<form enctype="multipart/form-data" id="personForm" method="post" autocomplete="off" novalidate>
+  {% csrf_token %}
+  
+  {% for campo in formulario %}
+      <div class="form-group mb-4">
+          <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+          {% if campo.name == 'sexo' %}
+              <div>
+                  {% for subcampo in campo %}
+                      <div class="form-check form-check-inline">
+                          {{ subcampo.tag }}
+                          <label class="form-check-label" for="{{ subcampo.id_for_label }}">
+                              {{ subcampo.choice_label }}
+                          </label>
+                      </div>
+                  {% endfor %}
+              </div>
+          {% else %}
+              {{ campo }}
+          {% endif %}
+      </div>
+      {% if campo.value %}
+            <div class="col-12 help-text">{{ campo.errors }}</div>
+        {% endif %}
+  {% endfor %}
+
+  {% if form.errors %}
+      <div class="alert alert-danger">
+          <ul>
+              {% for field, errors in form.errors.items %}
+                  <li>{{ field }}: {{ errors|striptags }}</li>
+              {% endfor %}
+          </ul>
+      </div>
+  {% endif %}
+  {% if form.non_field_errors %}
+  <div class="alert alert-danger">
+    {{ form.non_field_errors }}
+  </div>
+{% endif %}
+  <input type="submit" class="btn btn-success" value="Guardar"></input>
+</form>
+
+
