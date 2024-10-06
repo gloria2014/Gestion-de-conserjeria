@@ -118,7 +118,7 @@ def editar_conserje_view(request, id):
 def eliminar_conserje_view(request, id):
     prueba = Empleados.objects.get(id=id)
     prueba.delete()
-    return redirect('ver_observaciones') 
+    return redirect('ver_conserjes') 
     
 
 # ----------------- RUTAS PARA IR A LAS PAGINAS  DE OBSERVACIONES ---------------------------
@@ -159,10 +159,13 @@ def editar_observacion_view(request, id):
     return render(request, 'home/editar-observacion.html', {'formulario':formulario})
 
 
+
+
+
 @login_required(login_url="/login/")
 def eliminar_observacion_view(request, id):
     obj = Prueba.objects.get(id=id)
     obj.delete()
-    return redirect('ver_conserjes') 
+    return redirect('ver_observaciones') 
     
     
