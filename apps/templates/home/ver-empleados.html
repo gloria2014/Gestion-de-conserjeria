@@ -57,7 +57,8 @@
                       <td class="align-middle">
                         <input type="hidden" name="id" value="{{ item.id }}">
                         <a class="btn btn-info" href="{% url 'editar_conserje' item.id %}">Editar</a>
-                        <a class="btn btn-danger" href="{% url 'eliminar_conserje' item.id %}">Borrar</a>
+                        
+                        <a href="#" class="btn btn-danger" onclick="confirmDelete('{% url 'eliminar_conserje' item.id %}')">Eliminar</a>
                       </td>
                     </tr>
                     {% endfor %}
