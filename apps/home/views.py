@@ -7,9 +7,11 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from django.urls import reverse
 
+from django.template.loader import render_to_string
+from weasyprint import HTML
+
 from .models import Prueba
-from apps.authentication.models import Empleados
-from apps.authentication.models import Region, Comuna
+from apps.authentication.models import Region, Comuna, Empleados
 
 from .forms import PruebaForm, EmpleadoForm
 
@@ -120,6 +122,16 @@ def eliminar_conserje_view(request, id):
     prueba.delete()
     return redirect('ver_conserjes') 
     
+@login_required(login_url="/login/")
+def exportar_conserjes_pdf(request):
+    conserjes = Empleados.objects.all()
+    html_string = render_to_string('home/empleados-pdf.html', {'empleados': conserjes})
+    html = HTML(string=html_string)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=conserjes.pdf'
+    html.write_pdf(response)
+    return response
+
 
 # ----------------- RUTAS PARA IR A LAS PAGINAS  DE OBSERVACIONES ---------------------------
 
