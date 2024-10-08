@@ -11,11 +11,14 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 
 from .models import Prueba
+from django.db.models import Q
 from apps.authentication.models import Region, Comuna, Empleados
 
 from .forms import PruebaForm, EmpleadoForm
 
 import logging
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +79,28 @@ def load_comunas(request):
 # ----------------- RUTAS PARA IR A LAS PAGINAS  CONSERJE GESTION ---------------------------
 
 @login_required(login_url="/login/")
-def ver_conserjes_view(request):
+def ver_conserjes_view_sinfiltro(request):
     empleados = Empleados.objects.all()
     return render(request, 'home/ver-empleados.html', {'empleadosObj':empleados})
+
+
+@login_required(login_url="/login/")
+def ver_conserjes_view(request):
+    query = Q()
+    if 'rut' in request.GET and request.GET['rut']:
+        query &= Q(rut__icontains=request.GET['rut'])
+    if 'nombres' in request.GET and request.GET['nombres']:
+        query &= (
+            Q(nombres__icontains=request.GET['nombres']) |
+            Q(apellido_paterno__icontains=request.GET['nombres']) |
+            Q(apellido_materno__icontains=request.GET['nombres'])
+        )
+    if 'correo_electronico' in request.GET and request.GET['correo_electronico']:
+        query &= Q(correo_electronico__icontains=request.GET['correo_electronico'])
+
+    empleados = Empleados.objects.filter(query)
+    return render(request, 'home/ver-empleados.html', {'empleadosObj': empleados})
+
 
 @login_required(login_url="/login/")
 def crear_conserje_view(request):

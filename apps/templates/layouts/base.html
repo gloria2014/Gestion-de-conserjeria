@@ -4,14 +4,14 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0 shrink-to-fit=no">
   <link rel="apple-touch-icon" sizes="76x76" href="{{ ASSETS_ROOT }}/img/apple-icon.png">
   <link rel="icon" type="image/png" href="{{ ASSETS_ROOT }}/img/favicon.png">
 
   <title>
     Gestion Conserjeria - {% block title %}{% endblock %}
   </title>
-
+  {% load static %} 
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
   <!-- Nucleo Icons -->
@@ -31,6 +31,8 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
 
   <!-- Specific CSS goes HERE -->
+  <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}"> <!-- Asegúrate de que la ruta sea correcta -->
+
   {% block stylesheets %}{% endblock stylesheets %}  
 
 </head>
@@ -91,6 +93,7 @@
           todayHighlight: true
       });
 
+   
        // Función genérica para mostrar el modal de confirmación
     window.confirmDelete = function(url) {
       Swal.fire({
@@ -111,60 +114,7 @@
     });
     </script>
 
-  <!-- <script>
-    $(document).ready(function() {
-      // Initialize Bootstrap Datepicker
-      $('#fecha_ingreso').datepicker({
-        format: 'yyyy-mm-dd',
-        autoclose: true,
-        todayHighlight: true
-      });
-  
-      //alert('Hello World');
-      const url = $("#personForm").attr("data-regiones-url");
-  
-      $.ajax({
-        url: url,
-        success: function(data) {
-          console.log("Regiones data: :: ", data);
-          let options = '<option value="">Seleccione una región</option>';
-          for (let i = 0; i < data.length; i++) {
-            let region = data[i];
-            options += `<option value="${region.id}">${region.nombre}</option>`;
-          }
-          $("#id_region").html(options);
-        },
-        error: function(xhr, status, error) {
-          console.error("AJAX error:", status, error);
-        }
-      });
-  
-      $("#id_region").change(function() {
-        const urlComunas = $("#personForm").attr("data-comunas-url");
-        const regionId = $(this).val();
-        console.log("Selected region ID:", regionId);
-  
-        $.ajax({
-          url: urlComunas,
-          data: {
-            'region_id': regionId
-          },
-          success: function(data) {
-            console.log("Comunas data:", data);
-            let options = '<option value="">Seleccione una comuna</option>';
-            for (let i = 0; i < data.length; i++) {
-              let comuna = data[i];
-              options += `<option value="${comuna.id}">${comuna.nombre}</option>`;
-            }
-            $("#id_comuna").html(options);
-          },
-          error: function(xhr, status, error) {
-            console.error("AJAX error:", status, error);
-          }
-        });
-      });
-    });
-  </script> -->
+
 
   <!-- Github buttons -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>  

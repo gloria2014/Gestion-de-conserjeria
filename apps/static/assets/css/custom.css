@@ -1,0 +1,25 @@
+
+  .formato-texto{
+    text-transform: none; /* Eliminar el uppercase */
+    text-transform: capitalize; /* Primera letra en mayúscula, el resto en minúscula */
+  }
+
+  .text-xxs {
+    font-size: 0.7rem !important;
+}
+.btn{
+  font-size: 0.9rem !important;
+}
+.form-control{
+  font-size: 0.9rem !important;
+}
+
+.card{
+  border: 2px solid rgba(0, 0, 0, .125);
+  border-radius: 0.25rem;
+}
+
+
+.container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl{
+  width: 100% !important;
+}
