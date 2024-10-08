@@ -26,25 +26,24 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+ 
                 <th>RUT</th>
-                <th>Nombres</th>
-                <th>Apellido Paterno</th>
-                <th>Apellido Materno</th>
-                <th>Teléfono</th>
+                <th>Nombre completo</th>
+                <th>Teléfono</th>              
                 <th>Correo Electrónico</th>
+                <th>Dirección</th>
+
             </tr>
         </thead>
         <tbody>
-            {% for empleado in empleados %}
+            {% for item in empleados %}
             <tr>
-                <td>{{ empleado.id }}</td>
-                <td>{{ empleado.rut }}</td>
-                <td>{{ empleado.nombres }}</td>
-                <td>{{ empleado.apellido_paterno }}</td>
-                <td>{{ empleado.apellido_materno }}</td>
-                <td>{{ empleado.telefono }}</td>
-                <td>{{ empleado.correo_electronico }}</td>
+            
+                <td>{{ item.rut }}</td>
+                <td>{{ item.nombres }} {{ item.apellido_paterno }} {{ item.apellido_materno }}</td>               
+                <td>{{ item.telefono }}</td>
+                <td>{{ item.correo_electronico }}</td>
+                <td>{{ item.direccion }}</td>
             </tr>
             {% endfor %}
         </tbody>

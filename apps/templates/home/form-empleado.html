@@ -1,44 +1,57 @@
 <form enctype="multipart/form-data" id="personForm" method="post" autocomplete="off" novalidate>
-  {% csrf_token %}
-  
-  {% for campo in formulario %}
-      <div class="form-group mb-4">
-          <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
-          {% if campo.name == 'sexo' %}
+    {% csrf_token %}
+    
+    <div class="row">
+      {% for campo in formulario %}
+        <div class="col-md-6">
+          <div class="form-group mb-4">
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {% if campo.name == 'sexo' %}
               <div>
-                  {% for subcampo in campo %}
-                      <div class="form-check form-check-inline">
-                          {{ subcampo.tag }}
-                          <label class="form-check-label" for="{{ subcampo.id_for_label }}">
-                              {{ subcampo.choice_label }}
-                          </label>
-                      </div>
-                  {% endfor %}
+                {% for subcampo in campo %}
+                  <div class="form-check form-check-inline">
+                    {{ subcampo.tag }}
+                    <label class="form-check-label" for="{{ subcampo.id_for_label }}">
+                      {{ subcampo.choice_label }}
+                    </label>
+                  </div>
+                {% endfor %}
               </div>
-          {% else %}
+            {% else %}
               {{ campo }}
+            {% endif %}
+          </div>
+          {% if campo.errors %}
+            <div class="help-text">{{ campo.errors }}</div>
           {% endif %}
-      </div>
-      {% if campo.value %}
-            <div class="col-12 help-text">{{ campo.errors }}</div>
-        {% endif %}
-  {% endfor %}
-
-  {% if form.errors %}
+        </div>
+      {% endfor %}
+    </div>
+  
+    {% if form.errors %}
       <div class="alert alert-danger">
-          <ul>
-              {% for field, errors in form.errors.items %}
-                  <li>{{ field }}: {{ errors|striptags }}</li>
-              {% endfor %}
-          </ul>
+        <ul>
+          {% for field, errors in form.errors.items %}
+            <li>{{ field }}: {{ errors|striptags }}</li>
+          {% endfor %}
+        </ul>
       </div>
-  {% endif %}
-  {% if form.non_field_errors %}
-  <div class="alert alert-danger">
-    {{ form.non_field_errors }}
-  </div>
-{% endif %}
-  <input type="submit" class="btn btn-success" value="Guardar"></input>
+    {% endif %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <div class="text-center">
+        <input type="submit" class="btn btn-success btn-lg" value="Guardar">
+        <button type="button" class="btn btn-secondary btn-lg" onclick="resetForm()">Limpiar</button>
+      </div>
+
 </form>
 
-
+<script>
+    function resetForm() {
+      document.getElementById('personForm').reset();
+    }
+  </script>

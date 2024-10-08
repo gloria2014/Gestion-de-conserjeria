@@ -7,77 +7,113 @@
 
 {% block content %}
 
-    <div class="container-fluid py-4">
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card mb-4">
+        <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
+          <h4>Listado de Conserjes</h4>
+       </div>
 
-      <div class="row">
-        <div class="col-12">
-          <div class="card mb-4">
-            <div class="card-header pb-0">
-              <h6>Listado de Conserjes</h6>
-              <a class="btn btn-success" href="{% url 'crear_conserje' %}">Nuevo Conserje</a>
-              <a href="{% url 'exportar_empleados_pdf' %}" class="btn btn-primary">Exportar a PDF</a>
-            </div>
-           
-            <div class="card-body px-0 pt-0 pb-2">
-             
-              <div class="table-responsive p-0">
+        <!-- Card para el formulario de búsqueda -->
+        <div class="card-body" style="margin-bottom: -2rem;">
+          <div class="row">
+            <div class="col-md-9">
+              <div class="card mb-4">
                 
-                <table class="table align-items-center mb-0">
-                  <thead>
-                    <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">RUT</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nombre completo</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Teléfono</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Correo Electrónico</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Estado</th>                
-                      <th class="text-secondary opacity-7">Accion</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for item in empleadosObj %}
-                    <tr>
-                      <td>
-                        <div class="d-flex px-2 py-1">                          
-                          <div class="d-flex flex-column justify-content-center">
-                            <p class="text-xs text-secondary mb-0">{{ item.rut }}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <p class="text-xs text-secondary mb-0">{{ item.nombres }} {{ item.apellido_paterno }} {{ item.apellido_materno }}</p>
-                      </td>
-                      <td>
-                        <p class="text-xs text-secondary mb-0">{{ item.telefono }}</p>
-                      </td>
-                      <td>
-                        <p class="text-xs text-secondary mb-0">{{ item.correo_electronico }}</p>
-                      </td>
-                      <td>
-                        <p class="text-xs text-secondary mb-0">{{ item.estado }}</p>
-                      </td>
-                      <td class="align-middle">
-                        <input type="hidden" name="id" value="{{ item.id }}">
-                        <a class="btn btn-info" href="{% url 'editar_conserje' item.id %}">Editar</a>
-                        
-                        <a href="#" class="btn btn-danger" onclick="confirmDelete('{% url 'eliminar_conserje' item.id %}')">Eliminar</a>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                <div style="background-color: #f8f9fa; margin: auto;">
+                  <h6>Filtros</h6>
+                 
+                  <form method="GET" action="{% url 'ver_conserjes' %}" >
+                    <div class="row">
+                      <div class="col-md-3">
+                        <input type="text" name="rut" class="form-control" placeholder="Buscar por RUT" value="{{ request.GET.rut }}">
+                      </div>
+                      <div class="col-md-3">
+                        <input type="text" name="nombres" class="form-control" placeholder="Buscar por Nombre" value="{{ request.GET.nombres }}">
+                      </div>
+                      <div class="col-md-3">
+                        <input type="text" name="correo_electronico" class="form-control" placeholder="Buscar por Correo" value="{{ request.GET.correo_electronico }}">
+                      </div>
+                      <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary formato-texto"><i class="fas fa-search"></i> Buscar</button>
+                        <a href="{% url 'ver_conserjes' %}" class="btn btn-secondary formato-texto">
+                          <i class="fas fa-eraser"></i> Limpiar
+                        </a>
+                      </div>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
+
+            <div class="col-md-3">
+              <a class="btn btn-success btn-md formato-texto" href="{% url 'crear_conserje' %}">Nuevo</a>
+       
+              <a href="{% url 'exportar_empleados_pdf' %}" target="_blank" class="btn btn-primary btn-md formato-texto">
+                <i class="fas fa-download"></i> PDF
+              </a>
+         
+            </div>
+          </div>
+          
+        </div>
+
+        <div class="card-body px-0 pt-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">RUT</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nombre completo</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Teléfono</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Correo Electrónico</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Dirección</th>
+                  <th class="text-secondary opacity-7">Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in empleadosObj %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2 py-1">
+                      <div class="d-flex flex-column justify-content-center">
+                        <p class="text-xs text-secondary mb-0">{{ item.rut }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <p class="text-xs text-secondary mb-0">{{ item.nombres }} {{ item.apellido_paterno }} {{ item.apellido_materno }}</p>
+                  </td>
+                  <td>
+                    <p class="text-xs text-secondary mb-0">{{ item.telefono }}</p>
+                  </td>
+                  <td>
+                    <p class="text-xs text-secondary mb-0">{{ item.correo_electronico }}</p>
+                  </td>
+                  <td>
+                    <p class="text-xs text-secondary mb-0">{{ item.direccion }}</p>
+                  </td>
+                  <td class="align-middle">
+                    <input type="hidden" name="id" value="{{ item.id }}">
+                    <a class="btn btn-info formato-texto" href="{% url 'editar_conserje' item.id %}">Editar</a>
+                    <a href="#" class="btn btn-danger formato-texto" onclick="confirmDelete('{% url 'eliminar_conserje' item.id %}')">Eliminar</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-
-   
-
-      {% include "includes/footer.html" %}
-
     </div>
-    
+  </div>
+
+  {% include "includes/footer.html" %}
+
+</div>
+
 {% endblock content %}
 
-<!-- Specific JS goes HERE --> 
+<!-- Specific JS goes HERE -->
 {% block javascripts %}{% endblock javascripts %}
