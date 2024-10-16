@@ -63,20 +63,6 @@ $ pip3 install -r requirements.txt
 
 <br />
 
-> Set Up Database
-
-```bash
-$ python manage.py makemigrations
-$ python manage.py migrate
-```
-
-<br />
-
-> Start the app
-
-```bash
-$ python manage.py runserver
-```
 
 SUBIR CAMBIOS DE MI RAMA
 1. Añadir los cambios al área de preparación:
