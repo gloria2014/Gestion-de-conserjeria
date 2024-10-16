@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
                'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'xxxxxxxx',
+        'NAME': 'conserjeria_1',
         'USER':'root',
-        'PASSWORD': 'xxxxxxx',
+        'PASSWORD': 'Estrella.23',
         'HOST': 'localhost',
         'PORT': '3306'
     }
