@@ -1,7 +1,3 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
 
 # Create your views here.
 from django.shortcuts import render, redirect
@@ -31,9 +27,9 @@ def login_view(request):
                 login(request, user)
                 return redirect("/")
             else:
-                msg = 'Invalid credentials'
+                msg = 'Credenciales inválidas'
         else:
-            msg = 'Error validating the form'
+            msg = 'Error al validar el formulario'
 
     return render(request, "accounts/login.html", {"form": form, "msg": msg})
 
@@ -67,25 +63,6 @@ def logout_user(request):
     logout(request)
     return redirect("/login/")
 
-# # AJAX
-# def load_regiones(request):
-#     logger.debug("Loading regions")
-#     regiones = Region.objects.all().values('id', 'nombre')
-#     logger.debug(f"Regiones: {list(regiones)}")
-#     return JsonResponse(list(regiones), safe=False)
-
-
-# def load_comunas(request):
-#     region_id = request.GET.get('region_id')
-#     logger.debug(f"Loading comunas for region_id: {region_id}")
-#     try:
-#         comunas = list(Comuna.objects.filter(region_id=region_id).values('id', 'nombre'))
-#         logger.debug(f"Comunas: {comunas}")
-#         return JsonResponse(comunas, safe=False)
-#     except Exception as e:
-#         logger.error(f"Error loading comunas: {e}")
-#         return JsonResponse({'error': 'Error loading comunas'}, status=500)
-  
 
 def listar_empleados(request):
     # Aquí iría la lógica para obtener la lista de empleados
