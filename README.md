@@ -89,3 +89,15 @@ TRAER LA ULTIMA VERSIÓN DE LA RAMA MAIN A MI RAMA LOCAL
 
 4. Fusionar los cambios de la rama
   git merge main
+
+
+
+
+
+
+
+
+
+
+
+  
