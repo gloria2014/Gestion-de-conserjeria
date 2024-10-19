@@ -70,8 +70,7 @@ class Comuna(models.Model):
 
 class Empleados(models.Model):
     id = models.AutoField(primary_key=True)
-    rut = models.CharField(max_length=12, unique=True)
-   
+    rut = models.CharField(max_length=12, unique=True)  
     nombres = models.CharField(max_length=50)
     apellido_paterno = models.CharField(max_length=50)
     apellido_materno = models.CharField(max_length=50)
@@ -93,3 +92,4 @@ class Empleados(models.Model):
         if not self.id_rol:
             self.id_rol_id = 1  # Establecer el valor predeterminado para id_rol
         super().save(*args, **kwargs)
+
