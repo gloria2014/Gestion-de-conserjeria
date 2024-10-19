@@ -30,6 +30,7 @@ REQUISITOS
 8. Hacer las migraciones
   8.1 (entorno5) PS C:\Project-mios\Gestion-de-conserjeria> python manage.py makemigrations
   8.2. (entorno5) PS C:\Project-mios\Gestion-de-conserjeria> python manage.py migrate
+  8.3 Para migraciones posteriores, eliminar la carpeta de migracion inicial y volver a migrar
 
 9. Crear el superusuario desde la terminal
   9.1 (entorno5) PS C:\Project-mios\Gestion-de-conserjeria> python manage.py createsuperuser
