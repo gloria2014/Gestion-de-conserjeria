@@ -85,7 +85,7 @@ DATABASES = {
                'ENGINE': 'django.db.backends.mysql',
         'NAME': 'conserjeria_2',
         'USER':'root',
-        'PASSWORD': 'Estrella.23',
+        'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '3306'
     }
