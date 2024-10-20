@@ -85,10 +85,19 @@ class EstadoEstacionamiento(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class NumeroEstacionamiento(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=50)
+
+    estado = models.CharField(max_length=1)
+
+    def __str__(self):
+        return self.nombre
     
 class Estacionamiento(models.Model):
     id = models.AutoField(primary_key=True)
-    numero_estacionamiento = models.CharField(max_length=10)
+    numero_estacionamiento = models.ForeignKey(NumeroEstacionamiento, on_delete=models.CASCADE)
     ubicacion = models.ForeignKey(UbicacionEstacionamiento, on_delete=models.CASCADE)
     tipo_estacionamiento = models.ForeignKey(TipoEstacionamiento, on_delete=models.CASCADE)
     estado_estacionamiento = models.ForeignKey(EstadoEstacionamiento, on_delete=models.CASCADE)

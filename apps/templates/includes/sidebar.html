@@ -133,7 +133,7 @@
         <div class="collapse {% if submenu_open_reservas %}show{% endif %}" id="reservas">
             <ul class="nav ms-4">
                 <li class="nav-item">
-                    <a class="nav-link {% if 'listado-estacionamientos' in segment %} active {% endif %}" href="/listado-estacionamientos.html">
+                    <a class="nav-link {% if 'listado-estacionamientos' in segment %} active {% endif %}" href="{% url 'ver_estacionamientos' %}">
                         <span class="sidenav-mini-icon"> L </span>
                         <span class="sidenav-normal"> Listado Estacionamientos </span>
                     </a>

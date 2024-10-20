@@ -18,13 +18,17 @@ urlpatterns = [
 
     path('ajax/load-comunas/', load_comunas, name='ajax_load_comunas'), # AJAX
     path('ajax/load-regiones/', load_regiones, name='ajax_load_regiones'),
-
+   
     path('nuevo-conserje/', views.crear_conserje_view, name='crear_conserje'),
     path('conserjes/', views.ver_conserjes_view, name='ver_conserjes'),
     path('editar-conserje/', views.editar_conserje_view, name='editar_conserje'),
     path('editar-conserje/<int:id>', views.editar_conserje_view, name='editar_conserje'),
     path('eliminar-conserje/<int:id>', views.eliminar_conserje_view, name='eliminar_conserje'),
     path('empleados-pdf/', views.exportar_conserjes_pdf, name='exportar_empleados_pdf'),
+
+    path('estacionamientos/', views.ver_estacionamientos_view, name='ver_estacionamientos'),
+    path('nuevo-estacionamiento/', views.crear_estacionamiento_view, name='crear_estacionamiento'),
+    path('editar-estacionamiento/<int:id>', views.editar_estacionamiento_view, name='editar_estacionamiento'),  
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
 
