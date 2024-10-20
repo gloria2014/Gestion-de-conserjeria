@@ -18,14 +18,23 @@
         <!-- Card para el formulario de búsqueda -->
         <div class="card-body" style="margin-bottom: -2rem;">
           <div class="row">
-            <div class="col-md-9">
+            <div class="col-md-12">
+              <a class="btn btn-success btn-md formato-texto" href="{% url 'crear_conserje' %}">Nuevo</a>
+       
+              <a href="{% url 'exportar_empleados_pdf' %}" target="_blank" class="btn btn-primary btn-md formato-texto">
+                <i class="fas fa-download"></i> PDF
+              </a>
+            </div>
+        </div>
+          <div class="row">
+            <div class="col-md-12">
               <div class="card mb-4">
                 
                 <div style="background-color: #f8f9fa; margin: auto;">
                   <h6>Filtros</h6>
                  
                   <form method="GET" action="{% url 'ver_conserjes' %}" >
-                    <div class="row">
+                    <div class="row align-items-center">
                       <div class="col-md-3">
                         <input type="text" name="rut" class="form-control" placeholder="Buscar por RUT" value="{{ request.GET.rut }}">
                       </div>
@@ -35,8 +44,8 @@
                       <div class="col-md-3">
                         <input type="text" name="correo_electronico" class="form-control" placeholder="Buscar por Correo" value="{{ request.GET.correo_electronico }}">
                       </div>
-                      <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary formato-texto"><i class="fas fa-search"></i> Buscar</button>
+                      <div class="col-md-3 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary formato-texto me-2"><i class="fas fa-search"></i> Buscar</button>
                         <a href="{% url 'ver_conserjes' %}" class="btn btn-secondary formato-texto">
                           <i class="fas fa-eraser"></i> Limpiar
                         </a>
@@ -46,18 +55,8 @@
                 </div>
               </div>
             </div>
-
-            <div class="col-md-3">
-              <a class="btn btn-success btn-md formato-texto" href="{% url 'crear_conserje' %}">Nuevo</a>
-       
-              <a href="{% url 'exportar_empleados_pdf' %}" target="_blank" class="btn btn-primary btn-md formato-texto">
-                <i class="fas fa-download"></i> PDF
-              </a>
-         
-            </div>
           </div>
-          
-        </div>
+
 
         <div class="card-body px-0 pt-0 pb-2">
           <div class="table-responsive p-0">

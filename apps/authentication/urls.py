@@ -9,8 +9,7 @@ urlpatterns = [
     path('login/', login_view, name="login"),
   #  path('listar-empleados/', listar_empleados, name='listar_empleados'),
     path('register/', register_user, name="register"),
-   # path('registrar-empleado/',registrar_empleado, name="registrar-empleado"),
-
+   
     #path('add/', views.person_create_view, name='person_add'),
     
    

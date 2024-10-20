@@ -1,6 +1,7 @@
 from django import forms
 from .models import Prueba
 from apps.authentication.models import Empleados, Region, Comuna
+from apps.home.models import Estacionamiento, NumeroEstacionamiento, UbicacionEstacionamiento, TipoEstacionamiento, EstadoEstacionamiento
 
 
 class PruebaForm(forms.ModelForm):
@@ -84,3 +85,70 @@ class EmpleadoForm(forms.ModelForm):
                 pass  # invalid input from the client; ignore and fallback to empty queryset
         elif self.instance.pk:
             self.fields['id_comuna'].queryset = self.instance.id_region.comuna_set.order_by('nombre')
+
+
+
+class EstacionamientoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(EstacionamientoForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            # Si estamos editando, mostrar el número de estacionamiento actual
+            self.fields['numero_estacionamiento'].queryset = NumeroEstacionamiento.objects.filter(pk=self.instance.numero_estacionamiento.pk)
+            
+        else:
+            # Si estamos creando, mostrar solo los números de estacionamiento disponibles
+            self.fields['numero_estacionamiento'].queryset = NumeroEstacionamiento.objects.filter(estado='1')
+
+    numero_estacionamiento = forms.ModelChoiceField(
+        queryset=NumeroEstacionamiento.objects.none(),  # Se establece en __init__
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+                "id": "id_numero_estacionamiento",
+                "autocomplete": "off"
+            }
+        ),
+        required=True,
+        empty_label="Seleccione"
+    )
+
+    ubicacion = forms.ModelChoiceField(
+        queryset=UbicacionEstacionamiento.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+                "id": "id_ubicacion",
+                "autocomplete": "off"
+            }
+        ),
+        required=True,
+        empty_label="Seleccione"
+    )
+    tipo_estacionamiento = forms.ModelChoiceField(
+        queryset=TipoEstacionamiento.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+                "id": "id_tipo_estacionamiento",
+                "autocomplete": "off"
+            }
+        ),
+        required=True,
+        empty_label="Seleccione"
+    )
+    estado_estacionamiento = forms.ModelChoiceField(
+        queryset=EstadoEstacionamiento.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+                "id": "id_estado_estacionamiento",
+                "autocomplete": "off"
+            }
+        ),
+        required=True,
+        empty_label="Seleccione"
+    )
+
+    class Meta:
+        model = Estacionamiento
+        fields = ['numero_estacionamiento', 'ubicacion', 'tipo_estacionamiento', 'estado_estacionamiento']

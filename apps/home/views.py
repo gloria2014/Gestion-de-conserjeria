@@ -13,8 +13,9 @@ from weasyprint import HTML
 from .models import Prueba
 from django.db.models import Q
 from apps.authentication.models import Region, Comuna, Empleados
+from apps.home.models import Estacionamiento, TipoEstacionamiento, UbicacionEstacionamiento, ReservaEstacionamiento, EstadoEstacionamiento, NumeroEstacionamiento
 
-from .forms import PruebaForm, EmpleadoForm
+from .forms import PruebaForm, EmpleadoForm, EstacionamientoForm
 
 import logging
 
@@ -63,8 +64,8 @@ def pages(request):
         html_template = loader.get_template('home/page-500.html')
         return HttpResponse(html_template.render(context, request))
 
-# ----------------- REGION Y COMUNAS ---------------------------
-# AJAX
+# ----------------- REGION, COMUNAS, NUMERO-EST. ---------------------------
+# LLAMDAS AJAX
 def load_regiones(request):
     logger.debug("Loading regions")
     regiones = Region.objects.all().values('id', 'nombre')
@@ -76,7 +77,8 @@ def load_comunas(request):
     comunas = Comuna.objects.filter(region_id=region_id).order_by('nombre')
     return JsonResponse(list(comunas.values('id', 'nombre')), safe=False)
 
-# ----------------- RUTAS PARA IR A LAS PAGINAS  CONSERJE GESTION ---------------------------
+
+# ----------------- SECCIÓN  CONSERJE GESTION ---------------------------
 
 @login_required(login_url="/login/")
 def ver_conserjes_view_sinfiltro(request):
@@ -116,7 +118,6 @@ def crear_conserje_view(request):
         print("Errores del formulario:", formulario.errors)
         messages.error(request, "Hay errores en el formulario. Por favor, corrígelos.")
 
-
     return render(request, 'home/registrar-conserje.html', {'formulario':formulario})
 
 @login_required(login_url="/login/")
@@ -155,6 +156,105 @@ def exportar_conserjes_pdf(request):
     return response
 
 
+# ------------------------ SECCIÓN ESTACIONAMIENTOS MANTENEDOR  --------------------
+
+# @login_required(login_url="/login/")
+# def ver_estacionamientos_view(request):
+#     query = Q()
+#     if 'numero_estacionamiento' in request.GET and request.GET['numero_estacionamiento']:
+#         query &= Q(rut__icontains=request.GET['numero_estacionamiento'])
+
+#     if 'ubicacion' in request.GET and request.GET['ubicacion']:   
+#         query &= Q(ubicacion=request.GET['ubicacion'])
+
+#     if 'tipo_estacionamiento' in request.GET and request.GET['tipo_estacionamiento']:
+#         query &= Q(tipo_estacionamiento=request.GET['tipo_estacionamiento'])
+
+#     if 'estado_estacionamiento' in request.GET and request.GET['estado_estacionamiento']:
+#         query &= Q(estado_estacionamiento=request.GET['estado_estacionamiento'])
+
+#     estacionamientos = Estacionamiento.objects.filter(query)
+#     return render(request, 'home/ver-estacionamientos.html', {'estacionamientosObj': estacionamientos})
+
+@login_required(login_url="/login/")
+def ver_estacionamientos_view(request):
+    query = Q()
+    if 'numero_estacionamiento' in request.GET and request.GET['numero_estacionamiento']:
+        query &= Q(numero_estacionamiento=request.GET['numero_estacionamiento'])
+
+    if 'ubicacion' in request.GET and request.GET['ubicacion']:   
+        query &= Q(ubicacion=request.GET['ubicacion'])
+
+    if 'tipo_estacionamiento' in request.GET and request.GET['tipo_estacionamiento']:
+        query &= Q(tipo_estacionamiento=request.GET['tipo_estacionamiento'])
+
+    if 'estado_estacionamiento' in request.GET and request.GET['estado_estacionamiento']:
+        query &= Q(estado_estacionamiento=request.GET['estado_estacionamiento'])
+
+    estacionamientos = Estacionamiento.objects.filter(query)
+    
+    # Obtener las opciones para los filtros
+    numeros_estacionamiento = NumeroEstacionamiento.objects.all()
+    ubicaciones = UbicacionEstacionamiento.objects.all()
+    tipos_estacionamiento = TipoEstacionamiento.objects.all()
+    estados_estacionamiento = EstadoEstacionamiento.objects.all()
+
+    return render(request, 'home/ver-estacionamientos.html', {
+        'estacionamientosObj': estacionamientos,
+        'numeros_estacionamiento': numeros_estacionamiento,
+        'ubicaciones': ubicaciones,
+        'tipos_estacionamiento': tipos_estacionamiento,
+        'estados_estacionamiento': estados_estacionamiento,
+    })
+
+@login_required(login_url="/login/")
+def crear_estacionamiento_view(request):
+    formulario = EstacionamientoForm(request.POST or None)
+
+    if request.method == 'POST':
+        print(request.POST)
+    
+        if formulario.is_valid():
+            estacionamiento = formulario.save()
+            # Actualizar el estado del NumeroEstacionamiento
+            numero_estacionamiento = estacionamiento.numero_estacionamiento
+            numero_estacionamiento.estado = '0'
+            numero_estacionamiento.save()
+            return redirect('ver_estacionamientos')
+        else:
+            messages.error(request, "Hay errores en el formulario. Por favor, corrígelos.")
+
+            print("Errores del formulario:", formulario.errors)
+
+    return render(request, 'home/registrar-estacionamiento.html',{'formulario':formulario})
+
+
+@login_required(login_url="/login/")
+def editar_estacionamiento_view(request, id):   
+    estacionamiento = Estacionamiento.objects.get(id=id)
+    
+    # Imprime todos los campos del objeto prueba en la consola
+    for field in estacionamiento._meta.fields:
+        field_name = field.name
+        field_value = getattr(estacionamiento, field_name)
+        print(f"{field_name}: {field_value}")
+
+    formulario = EstacionamientoForm(request.POST or None, instance=estacionamiento)
+
+    if formulario.is_valid() and request.POST:
+        formulario.save()
+        return redirect('ver_estacionamientos')
+    else:
+        print("Errores del formulario:", formulario.errors)
+        messages.error(request, "Hay errores en el formulario. Por favor, corrígelos.")
+  
+    return render(request, 'home/editar-estacionamiento.html', {
+        'formulario': formulario,
+        'numero_estacionamiento_hidden': formulario['numero_estacionamiento'].value()
+    })
+
+
+
 # ----------------- RUTAS PARA IR A LAS PAGINAS  DE OBSERVACIONES ---------------------------
 
 @login_required(login_url="/login/")
@@ -191,9 +291,6 @@ def editar_observacion_view(request, id):
         return redirect('ver_observaciones')
 
     return render(request, 'home/editar-observacion.html', {'formulario':formulario})
-
-
-
 
 
 @login_required(login_url="/login/")
