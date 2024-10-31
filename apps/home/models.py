@@ -32,35 +32,42 @@ class Condominio(models.Model):
         return self.nombre
 
 
+class Propiedad(models.Model):
+    SI_NO_CHOICES = [
+        ('SI', 'Sí'),
+        ('NO', 'No'),
+    ]
+
+    id = models.AutoField(primary_key=True) 
+    numero_propiedad = models.IntegerField(unique=True)
+    piso = models.IntegerField()
+    estado = models.CharField(max_length=10)
+    condominio = models.ForeignKey(Condominio, on_delete=models.CASCADE)
+    estacionamiento = models.CharField(max_length=2, choices=SI_NO_CHOICES,default='NO')
+    fecha_creacion = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Propiedad {self.id} {self.numero_propiedad} en piso {self.piso}"
+
+
 class Residentes(models.Model):
+    SI_NO_CHOICES = [
+        ('SI', 'Sí'),
+        ('NO', 'No'),
+    ]
     id = models.AutoField(primary_key=True)
-    rut = models.CharField(max_length=10)
+    rut = models.CharField(max_length=12)
     nombres = models.CharField(max_length=50)
     apellido_paterno = models.CharField(max_length=50)
     apellido_materno = models.CharField(max_length=50)
     telefono = models.IntegerField()
     correo_electronico = models.CharField(max_length=50)
-    propietario = models.CharField(max_length=2)
+    propietario = models.CharField(max_length=2, choices=SI_NO_CHOICES)
     estado = models.CharField(max_length=10)
+    propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.nombres} {self.apellido_paterno} {self.apellido_materno}"
-    
-
-
-class Propiedad(models.Model):
-    id = models.AutoField(primary_key=True)
-    numero_propiedad = models.CharField(max_length=5)
-    piso = models.IntegerField()
-    estado = models.CharField(max_length=10)
-    condominio = models.ForeignKey(Condominio, on_delete=models.CASCADE)
-    residente = models.ForeignKey(Residentes, on_delete=models.CASCADE)
-    estacionamiento = models.CharField(max_length=5,null=True, blank=True)
-    fecha_creacion = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Propiedad {self.numero_propiedad} en piso {self.piso}"
-
 
 class UbicacionEstacionamiento(models.Model):
     id = models.AutoField(primary_key=True)
@@ -109,36 +116,31 @@ class Estacionamiento(models.Model):
 class ReservaEstacionamiento(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE)
-    estacionamiento = models.ForeignKey(Estacionamiento, on_delete=models.CASCADE)
+    estacionamiento = models.ForeignKey(Estacionamiento, on_delete=models.CASCADE,null=True, blank=True)
+    empleado = models.ForeignKey(Empleados, on_delete=models.CASCADE)
     rut_visita = models.CharField(max_length=12)
-    nombre = models.CharField(max_length=50)
-    apellido_paterno = models.CharField(max_length=50)
-    apellido_materno = models.CharField(max_length=50)
-    telefono = models.CharField(max_length=10)
+    nombre_visita = models.CharField(max_length=50)
+    apellido_paterno_visita = models.CharField(max_length=50)
+    apellido_materno_visita = models.CharField(max_length=50)
+    telefono_visita = models.CharField(max_length=10)
     relacion_residente = models.CharField(max_length=50)
-    patente_vehiculo = models.CharField(max_length=8)
-    descripcion_vehiculo = models.CharField(max_length=100)
-    tiempo_permanencia = models.TimeField()
+    patente_vehiculo = models.CharField(max_length=8, null=True, blank=True)
+    descripcion_vehiculo = models.CharField(max_length=100, null=True, blank=True)
+    tiempo_permanencia = models.TimeField(null=True, blank=True)
     fecha_registro_visita = models.DateTimeField(auto_now_add=True)
-    fecha_llegada_visita = models.DateTimeField()
-    fecha_modifica_reserva = models.DateTimeField(auto_now=True)
-    ubicacion = models.ForeignKey(UbicacionEstacionamiento, on_delete=models.CASCADE)
-    tipo = models.ForeignKey(TipoEstacionamiento, on_delete=models.CASCADE)
-    numero_est = models.IntegerField()
-    empleado = models.IntegerField()
+    fecha_llegada_visita = models.DateTimeField(null=True, blank=True)
+    fecha_llegada_visita_confirmada = models.DateTimeField(null=True, blank=True)
+    fecha_modifica_reserva = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"Reserva de {self.nombre} {self.apellido_paterno} para el estacionamiento {self.estacionamiento}"
+        return f"Reserva de {self.nombre_visita} {self.apellido_paterno_visita} para el estacionamiento {self.estacionamiento}"
 
 class Observaciones(models.Model):
     id = models.AutoField(primary_key=True)
     descripcion = models.CharField(max_length=500)
     fecha_registro_observacion = models.DateTimeField(auto_now_add=True)
-    nombre_residente = models.CharField(max_length=50)
-    numero_dpto = models.IntegerField()
-    piso = models.IntegerField()
     propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE)
     empleado = models.ForeignKey(Empleados, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Observación de {self.nombre_residente} en el departamento {self.numero_dpto}, piso {self.piso}"
+        return f"Observación de {self.propiedad}"

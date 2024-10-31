@@ -140,9 +140,15 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if 'reserva-estacionamiento' in segment %} active {% endif %}" href="/reserva-estacionamiento.html">
+                    <a class="nav-link {% if 'estacionamientos-reservados' in segment %} active {% endif %}" href="/reserva-estacionamiento.html">
                         <span class="sidenav-mini-icon"> R </span>
-                        <span class="sidenav-normal"> Reserva Estacionamiento </span>
+                        <span class="sidenav-normal"> Est. Reservados </span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'nueva-reserva' in segment %} active {% endif %}" href="{% url 'crear_reserva' %}">
+                        <span class="sidenav-mini-icon"> R </span>
+                        <span class="sidenav-normal"> Nueva Reserva </span>
                     </a>
                 </li>
             </ul>

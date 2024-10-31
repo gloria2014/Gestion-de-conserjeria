@@ -2,7 +2,8 @@
 
 from django.urls import path, re_path
 from apps.home import views
-from .views import load_comunas, load_regiones
+from .views import (load_comunas, load_regiones, buscar_residentes, 
+obtener_datos_residente, obtener_datos_propiedad)
 
 urlpatterns = [
 
@@ -28,7 +29,15 @@ urlpatterns = [
 
     path('estacionamientos/', views.ver_estacionamientos_view, name='ver_estacionamientos'),
     path('nuevo-estacionamiento/', views.crear_estacionamiento_view, name='crear_estacionamiento'),
-    path('editar-estacionamiento/<int:id>', views.editar_estacionamiento_view, name='editar_estacionamiento'),  
+    path('editar-estacionamiento/<int:id>', views.editar_estacionamiento_view, name='editar_estacionamiento'), 
+
+    path('nueva-reserva/', views.crear_reserva_view, name='crear_reserva'), 
+    #path('nueva-reserva/', crear_reserva_view, name='crear_reserva'),
+    path('buscar-residentes/', buscar_residentes, name='buscar_residentes'),
+    
+    path('obtener-datos-residente/', obtener_datos_residente, name='obtener_datos_residente'),
+    path('obtener-datos-propiedad/', obtener_datos_propiedad, name='obtener_datos_propiedad'),
+
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
 

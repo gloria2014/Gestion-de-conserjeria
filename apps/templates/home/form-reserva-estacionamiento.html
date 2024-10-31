@@ -1,0 +1,151 @@
+<form enctype="multipart/form-data" id="reservaEstacionamientoForm" method="post" autocomplete="off" novalidate>
+  {% csrf_token %}
+  <style>
+    .d-none {
+        display: none;
+    }
+    label[for="id_residente"] {
+        display: none!important;
+    }
+</style>
+  <h5>Datos del Residente</h5>
+  <div class="row">    
+    
+    <!-- {{ formulario.propiedad }} -->
+    <div class="col-md-6">
+      <div class="form-group" style="margin-bottom: -0.3rem;">
+          <label for="nombre_completo_residente" class="residente-label">Residente: </label>                     
+          <span id="nombre_completo_residente" class="residente-span"></span>
+      </div>
+      <div class="form-group">
+          <label for="telefono_residente" class="residente-label">Contacto: </label>                     
+          <span id="telefono_residente" class="residente-span"></span>
+      </div>
+  </div>
+  <div class="col-md-6">
+      <div class="form-group" style="margin-bottom: -0.3rem;">
+          <label for="numero_propiedad_label" class="residente-label">Número Propiedad: </label>                     
+          <span id="numero_propiedad_label" class="residente-span"></span>
+          <input type="hidden" id="propiedad" name="propiedad">
+      </div>
+      <div class="form-group">
+          <label for="piso_propiedad" class="residente-label">Piso: </label>                     
+          <span id="piso_propiedad" class="residente-span"></span>
+      </div>
+  </div>
+  </div>
+
+  <h5>Datos de la Visita</h5>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group mb-4">
+        <label for="{{ formulario.rut_visita.id_for_label }}">{{ formulario.rut_visita.label }}</label>
+        {{ formulario.rut_visita }}
+      </div>
+      {% if formulario.rut_visita.errors %}
+        <div class="help-text">{{ formulario.rut_visita.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="col-md-6">
+      <div class="form-group mb-4">
+        <label for="{{ formulario.nombre_visita.id_for_label }}">{{ formulario.nombre_visita.label }}</label>
+        {{ formulario.nombre_visita }}
+      </div>
+      {% if formulario.nombre_visita.errors %}
+        <div class="help-text">{{ formulario.nombre_visita.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="col-md-6">
+      <div class="form-group mb-4">
+        <label for="{{ formulario.apellido_paterno_visita.id_for_label }}">{{ formulario.apellido_paterno_visita.label }}</label>
+        {{ formulario.apellido_paterno_visita }}
+      </div>
+      {% if formulario.apellido_paterno_visita.errors %}
+        <div class="help-text">{{ formulario.apellido_paterno_visita.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="col-md-6">
+      <div class="form-group mb-4">
+        <label for="{{ formulario.apellido_materno_visita.id_for_label }}">{{ formulario.apellido_materno_visita.label }}</label>
+        {{ formulario.apellido_materno_visita }}
+      </div>
+      {% if formulario.apellido_materno_visita.errors %}
+        <div class="help-text">{{ formulario.apellido_materno_visita.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="col-md-6">
+      <div class="form-group mb-4">
+        <label for="{{ formulario.telefono_visita.id_for_label }}">{{ formulario.telefono_visita.label }}</label>
+        {{ formulario.telefono_visita }}
+      </div>
+      {% if formulario.telefono_visita.errors %}
+        <div class="help-text">{{ formulario.telefono_visita.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="col-md-6">
+      <div class="form-group mb-4">
+        <label for="{{ formulario.relacion_residente.id_for_label }}">{{ formulario.relacion_residente.label }}</label>
+        {{ formulario.relacion_residente }}
+      </div>
+      {% if formulario.relacion_residente.errors %}
+        <div class="help-text">{{ formulario.relacion_residente.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="col-md-6" style="display: none;">
+      <div class="form-group mb-4">
+        <label for="{{ formulario.residente.id_for_label }}">{{ formulario.residente.label }}</label>
+        {{ formulario.residente }}
+      </div>
+      
+    </div>
+  </div>
+  
+
+  <h5>Datos del vehículo</h5>
+  <hr>
+  <div class="row">
+    {% for campo in formulario %}
+      {% if campo.name in 'patente_vehiculo descripcion_vehiculo fecha_llegada_visita fecha_llegada_visita_confirmada  tiempo_permanencia' %}
+        
+        <div class="col-md-6">
+          <div class="form-group mb-4">
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {{ campo }}
+          </div>
+          {% if campo.errors %}
+            <div class="help-text">{{ campo.errors }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+    <div class="d-none">
+      <!-- {{ formulario.empleado }} -->
+      {{ formulario.propiedad }}
+    </div>
+  </div>
+
+    <!-- Campo oculto para el ID del empleado -->
+    <input type="hidden" id="id_empleado" name="empleado" value="{{ request.user.id }}">
+
+  {% if form.errors %}
+    <div class="alert alert-danger">
+      <ul>
+        {% for field, errors in form.errors.items %}
+          <li>{{ field }}: {{ errors|striptags }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  
+
+  <div class="text-center">
+      <input type="submit" class="btn btn-success btn-lg" value="Guardar">
+      <button type="button" class="btn btn-secondary btn-lg" onclick="resetForm()">Limpiar</button>
+  </div>
+</form>

@@ -1,5 +1,5 @@
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django import template
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -13,9 +13,13 @@ from weasyprint import HTML
 from .models import Prueba
 from django.db.models import Q
 from apps.authentication.models import Region, Comuna, Empleados
-from apps.home.models import Estacionamiento, TipoEstacionamiento, UbicacionEstacionamiento, ReservaEstacionamiento, EstadoEstacionamiento, NumeroEstacionamiento
+from apps.home.models import (
+    Estacionamiento, TipoEstacionamiento, 
+    UbicacionEstacionamiento, ReservaEstacionamiento, EstadoEstacionamiento,
+    NumeroEstacionamiento, Propiedad, Residentes)
 
-from .forms import PruebaForm, EmpleadoForm, EstacionamientoForm
+from .forms import( PruebaForm, EmpleadoForm, EstacionamientoForm,
+ ReservaEstacionamientoForm)
 
 import logging
 
@@ -253,6 +257,143 @@ def editar_estacionamiento_view(request, id):
         'numero_estacionamiento_hidden': formulario['numero_estacionamiento'].value()
     })
 
+# -------------- SECCIÓN RESERVAS ----------------------------
+
+
+@login_required(login_url="/login/")
+def crear_reserva_view(request):
+    # Obtenemos el formulario con los datos POST si están presentes
+    formulario = ReservaEstacionamientoForm(request.POST or None)
+    print(" 1 request post::::::::::::::: ", request.POST)
+    #numero_propiedad = request.POST.get('propiedad') or request.GET.get('numero_propiedad')
+    #numero_propiedad = request.POST.getlist('propiedad')[0] if request.method == 'POST' else request.GET.get('numero_propiedad')
+    numero_propiedad = request.POST.get('propiedad', '').strip() or request.GET.get('numero_propiedad', '').strip()
+    
+
+    if numero_propiedad is not None:
+        try:
+            if isinstance(numero_propiedad, dict):
+                numero_propiedad = numero_propiedad.get('id')
+                numero_propiedad = int(numero_propiedad)
+                print("numero_propiedad int ::::::::::::::: ", numero_propiedad)
+        except ValueError:
+            print("Error: numero_propiedad no es un número válido.")
+            numero_propiedad = None
+    else:
+        print("Error: numero_propiedad es None.")
+        numero_propiedad = None
+
+
+    print("numero_propiedad ::::::::::::::: ", numero_propiedad)
+    if numero_propiedad:
+        print("entre!!!   . " , numero_propiedad)
+        #propiedad = get_object_or_404(Propiedad, id=numero_propiedad)
+        propiedad = Propiedad.objects.get(id=numero_propiedad)
+       
+        datos_propiedad = {
+                'id': propiedad.id,
+                'numero_propiedad': propiedad.numero_propiedad,
+                'piso': propiedad.piso,
+                'estado': propiedad.estado
+        }
+        print("Propiedad resultado ::::::::::::::::::::::.....: ", datos_propiedad)
+
+        # Iterar sobre las claves y valores del diccionario
+        for key, value in datos_propiedad.items():
+            print(f"{key}: {value}")
+
+        residentes = Residentes.objects.filter(propiedad=datos_propiedad['id'])
+        
+        # Iterar sobre los objetos del QuerySet de Residentes
+        for residente in residentes:
+            print(f"Residente ID: {residente.id}, Nombre: {residente.nombres}, Propiedad ID: {residente.propiedad.id}")
+        print("residentes despues del for ::::::::::::::::::::::.....: ", residentes)
+        # Asigna el queryset de residentes a los campos del formulario
+        formulario.fields['residente'].queryset = residentes
+
+
+
+        if request.method == 'GET':
+            print(" 2 rquest get ::::::::::::::: ", request.GET)
+            # Configura los valores iniciales para el formulario
+            formulario = ReservaEstacionamientoForm(initial={
+                'propiedad': propiedad.id,
+                'nombre_visita': residentes[0].nombres if residentes else '',
+                'apellido_paterno_visita': residentes[0].apellido_paterno if residentes else '',
+                'apellido_materno_visita': residentes[0].apellido_materno if residentes else '',
+                'telefono_visita': residentes[0].telefono if residentes else '',
+            })
+        elif request.method == 'POST':
+            print(" 3 rquest post ::::::::::::::: ", request.POST)
+            # Valida y guarda el formulario si es válido
+            if formulario.is_valid():
+                reserva = formulario.save(commit=False)
+
+                # Asigna el ID del empleado logueado
+                reserva.empleado_id = request.user.id
+                
+                # Si no hay patente o descripción, asigna estacionamiento_id a 0
+                if not reserva.patente_vehiculo and not reserva.descripcion_vehiculo:
+                    reserva.estacionamiento_id = 0
+                
+                reserva.save()  # Guarda la reserva
+                return redirect('registrar_reserva')
+            else:
+                messages.error(request, "Errores en el formulario. Por favor corrígelos.")
+                print("Errores del formulario:", formulario.errors)
+
+        return render(request, 'home/registrar-reserva.html', {'formulario': formulario, 'residentes': residentes})
+
+    # Renderiza formulario vacío si no hay numero_propiedad
+    return render(request, 'home/registrar-reserva.html', {'formulario': formulario})
+
+
+
+@login_required(login_url="/login/")
+def buscar_residentes(request):
+    numero_propiedad = request.GET.get('numero_propiedad')
+    if numero_propiedad:
+        try:
+            propiedad = Propiedad.objects.get(numero_propiedad=numero_propiedad)
+            residentes = Residentes.objects.filter(propiedad=propiedad)
+            residentes_list = [{'id': residente.id, 'nombre': f'{residente.nombres} {residente.apellido_paterno} {residente.apellido_materno}'} for residente in residentes]
+            return JsonResponse({'residentes': residentes_list})
+        except Propiedad.DoesNotExist:
+            return JsonResponse({'error': 'Propiedad no encontrada'}, status=404)
+    return JsonResponse({'error': 'Número de propiedad no proporcionado'}, status=400)
+
+@login_required(login_url="/login/")
+def obtener_datos_residente(request):   
+    residente_id = request.GET.get('residente_id')
+    if residente_id:
+        try:
+            residente = Residentes.objects.get(id=residente_id)
+            datos_residente = {
+                'nombre_completo': f'{residente.nombres} {residente.apellido_paterno} {residente.apellido_materno}',
+                'telefono': residente.telefono
+            }
+            return JsonResponse(datos_residente)
+        except Residentes.DoesNotExist:
+            return JsonResponse({'error': 'Residente no encontrado'}, status=404)
+    return JsonResponse({'error': 'ID de residente no proporcionado'}, status=400)
+
+@login_required(login_url="/login/")
+def obtener_datos_propiedad(request):    
+    numero_propiedad = request.GET.get('numero_propiedad')
+    if numero_propiedad:
+        try:
+            propiedad = Propiedad.objects.get(numero_propiedad=numero_propiedad)
+            print("Propiedad ::::::::::::::::::::::.....: ", propiedad)
+            datos_propiedad = {
+                'id': propiedad.id,
+                'numero_propiedad': propiedad.numero_propiedad,
+                'piso': propiedad.piso,
+                'estado': propiedad.estado
+            }
+            return JsonResponse(datos_propiedad)
+        except Propiedad.DoesNotExist:
+            return JsonResponse({'error': 'Propiedad no encontrada'}, status=404)
+    return JsonResponse({'error': 'Número de propiedad no proporcionado'}, status=400)
 
 
 # ----------------- RUTAS PARA IR A LAS PAGINAS  DE OBSERVACIONES ---------------------------
