@@ -1,0 +1,143 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Nueva Reserva {% endblock title %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card mb-4">
+        <div class="card-header pb-0">
+            <h4>Nueva Reserva</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="card mb-1 mt-1">
+                <div class="card-body p-4" style="padding: 0.5rem !important;">
+                    <form method="get" action="{% url 'crear_reserva' %}" id="buscarPropiedadForm">
+                        <div class="row">
+                            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                                <input type="text" id="numero_propiedad" name="numero_propiedad" class="form-control me-2" 
+                                placeholder="Ingrese número de la propiedad" style="flex: 1;">
+                                <button type="submit" class="btn btn-primary formato-texto me-2" style="margin-bottom: 0;">
+                                    <i class="fas fa-search"></i> Buscar</button>
+                                <a href="{% url 'ver_conserjes' %}" class="btn btn-secondary formato-texto" style="margin-bottom: 0;">
+                                  <i class="fas fa-eraser"></i> Limpiar
+                                </a>
+                            </div>                      
+                        </div>                  
+                    </form>
+                </div>
+            </div>
+            
+            {% include "home/form-reserva-estacionamiento.html" %}
+        </div>
+    </div>
+    {% include "includes/footer.html" %}
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="residentesModal" tabindex="-1" role="dialog" aria-labelledby="residentesModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="residentesModalLabel">Seleccionar Residente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <select id="residentesDropdown" class="form-control">
+                    <option value="">Seleccione</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="seleccionarResidenteBtn">Seleccionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    document.getElementById('buscarPropiedadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var numeroPropiedad = document.getElementById('numero_propiedad').value;
+        
+    fetch(`/obtener-datos-propiedad/?numero_propiedad=${numeroPropiedad}`)
+        .then(response => response.json())
+        .then(data => { 
+            
+            if (data.id && data.numero_propiedad && data.piso && data.estado) {
+                console.log("datos propiedad :::::::::::::::::::::::: ",data);
+                actualizarPropiedad(data.id);
+                document.getElementById('propiedad').value = data.id;
+                document.getElementById('numero_propiedad_label').textContent = data.numero_propiedad;
+                document.getElementById('piso_propiedad').textContent = data.piso;
+                document.getElementById('estado_propiedad').textContent = data.estado;
+            } else {
+                alert(data.error);
+            }
+        });
+        
+        fetch(`/buscar-residentes/?numero_propiedad=${numeroPropiedad}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.residentes) {
+                    var dropdown = document.getElementById('residentesDropdown');
+                    dropdown.innerHTML = '<option value="">Seleccione</option>';
+                    data.residentes.forEach(function(residente) {
+                        var option = document.createElement('option');
+                        option.value = residente.id;
+                        option.textContent = residente.nombre;
+                        dropdown.appendChild(option);
+                    });
+                    $('#residentesModal').modal('show');
+                } else {
+                    alert(data.error);
+                }
+            });
+
+
+    });
+
+    document.getElementById('seleccionarResidenteBtn').addEventListener('click', function() {
+        var dropdown = document.getElementById('residentesDropdown');
+        var selectedResidenteId = dropdown.value;
+        if (selectedResidenteId) {
+            document.getElementById('id_residente').value = selectedResidenteId;
+            actualizarDatosResidente(selectedResidenteId);
+            $('#residentesModal').modal('hide');
+        } else {
+            alert('Seleccione un residente');
+        }
+    });
+
+
+    function actualizarDatosResidente(residenteId) {
+
+        if (residenteId) {
+            fetch(`/obtener-datos-residente/?residente_id=${residenteId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.nombre_completo && data.telefono) {
+                        console.log("data :::::::::::::::::::::::: ",data);
+                        document.getElementById('nombre_completo_residente').innerHTML = data.nombre_completo;
+                        document.getElementById('telefono_residente').innerHTML = data.telefono;
+                    } else {
+                        alert(data.error);
+                    }
+                });
+        }
+    }
+
+    function actualizarPropiedad(id) {
+       
+        document.getElementById("id_propiedad").value = id;
+    }
+
+</script>
+{% endblock javascripts %}

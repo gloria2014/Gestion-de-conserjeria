@@ -80,16 +80,31 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
+# DATABASES = {
+#     'default': {
+#                'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'conserjeria_2',
+#         'USER':'root',
+#         'PASSWORD': 'Estrella.23',
+#         'HOST': 'localhost',
+#         'PORT': '3306'
+#     }
+# }
+
 DATABASES = {
     'default': {
-               'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'conserjeria_2',
-        'USER':'root',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'conserjeria_4',
+        'USER':'azure',
         'PASSWORD': 'Estrella.23',
-        'HOST': 'localhost',
-        'PORT': '3306'
+        'HOST': 'servidorconserjeria01.mysql.database.azure.com',
+        'PORT': '3306',
+         'OPTIONS': {
+            'ssl': {'ca': 'C:/Project-mios/DigiCertGlobalRootCA.crt.pem'}  # Ruta al certificado SSL
+        }
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

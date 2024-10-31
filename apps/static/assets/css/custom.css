@@ -23,3 +23,16 @@
 .container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl{
   width: 100% !important;
 }
+
+.residente-label, .residente-span {
+  font-family: Arial, sans-serif; /* Cambia esto a la fuente que prefieras */
+  font-size: 14px; /* Cambia esto al tamaño de fuente que prefieras */
+  color: #333; /* Cambia esto al color que prefieras */
+}
+h5 {
+  margin-bottom: 0.5rem; /* Ajusta el margen inferior del título */
+}
+
+.d-none {
+  display: none;
+}
