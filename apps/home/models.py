@@ -116,7 +116,7 @@ class Estacionamiento(models.Model):
 class ReservaEstacionamiento(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE)
-    estacionamiento = models.ForeignKey(Estacionamiento, on_delete=models.CASCADE,null=True, blank=True)
+    estacionamiento = models.IntegerField(null=True, blank=True)  # Cambiar a IntegerField  
     empleado = models.ForeignKey(Empleados, on_delete=models.CASCADE)
     rut_visita = models.CharField(max_length=12)
     nombre_visita = models.CharField(max_length=50)

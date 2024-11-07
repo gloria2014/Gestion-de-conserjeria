@@ -58,11 +58,43 @@
         </div>
     </div>
 </div>
-
+      <!-- Modal de Estacionamientos -->
+      <div class="modal fade" id="estacionamientosModal" tabindex="-1" aria-labelledby="estacionamientosModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="estacionamientosModalLabel">Estacionamientos Disponibles</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Número</th>
+                    <th>Ubicación</th>
+                  </tr>
+                </thead>
+                <tbody id="estacionamientosTableBody">
+                  <!-- Los datos se llenarán mediante JavaScript -->
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
 {% endblock content %}
 
 {% block javascripts %}
 <script>
+
+document.getElementById('estacionamientosModal2').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    $('#estacionamientosModal').modal('hide');
+    });
     document.getElementById('buscarPropiedadForm').addEventListener('submit', function(event) {
     event.preventDefault();
     var numeroPropiedad = document.getElementById('numero_propiedad').value;
@@ -108,7 +140,8 @@
         var dropdown = document.getElementById('residentesDropdown');
         var selectedResidenteId = dropdown.value;
         if (selectedResidenteId) {
-            document.getElementById('id_residente').value = selectedResidenteId;
+            document.getElementById('residente').value = selectedResidenteId;
+            alert(document.getElementById('residente').value);
             actualizarDatosResidente(selectedResidenteId);
             $('#residentesModal').modal('hide');
         } else {
@@ -116,6 +149,11 @@
         }
     });
 
+          // Función para actualizar el campo oculto con el ID del residente seleccionado
+    // document.getElementById('id_residente').addEventListener('change', function() {
+    //     var selectedResidenteId = this.value;
+    //     document.getElementById('residente_id').value = selectedResidenteId;
+    // });
 
     function actualizarDatosResidente(residenteId) {
 
@@ -135,9 +173,10 @@
     }
 
     function actualizarPropiedad(id) {
-       
         document.getElementById("id_propiedad").value = id;
     }
+
+
 
 </script>
 {% endblock javascripts %}

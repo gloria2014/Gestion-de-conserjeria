@@ -1,31 +1,49 @@
 
-# Create your views here.
-from django.shortcuts import render, redirect
+
+from django.contrib.auth.signals import user_logged_in
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages  # Importamos messages para mostrar mensajes de error
+
+from django.dispatch import receiver
+from django.shortcuts import render, redirect
+
 #from django.db import connection
-from apps.authentication.models import Region, Comuna
+from apps.authentication.models import Region, Comuna, Rol, Empleados
 from .forms import LoginForm, SignUpForm
 import logging
 from django.http import JsonResponse, HttpResponse
 
-# Copyright 2001-2022 by Vinay Sajip. All Rights Reserved.
 logger = logging.getLogger(__name__)
 
 
 def login_view(request):
     form = LoginForm(request.POST or None)
-
     msg = None
 
     if request.method == "POST":
-
         if form.is_valid():
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
             user = authenticate(username=username, password=password)
+
             if user is not None:
+                # Intentamos iniciar sesión y luego verificamos el rol del usuario
                 login(request, user)
-                return redirect("/")
+
+                # Si el usuario es super_admin, omitimos la validación de empleado_id
+                if user.is_super_admin():
+                    return redirect("/")  # Redirige al menú o dashboard del sistema
+
+                # Obtener el empleado asociado al usuario
+                try:
+                    empleado = Empleados.objects.get(usuario=user)
+                    request.session['empleado_id'] = empleado.id
+                except Empleados.DoesNotExist:
+                    messages.error(request, "Debe registrar un empleado antes de iniciar sesión.")
+                    return redirect("logout")  # Redirige a la vista de logout
+
+                # Si el empleado está asociado, redirige a la página de inicio o dashboard
+                return redirect("/")  # Redirige a la página de inicio u otra vista
             else:
                 msg = 'Credenciales inválidas'
         else:

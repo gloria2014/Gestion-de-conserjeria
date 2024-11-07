@@ -32,7 +32,7 @@
       </li>
       <!-- Menú del Administrador -->
       {% if user.is_authenticated%}
-      {% if user.is_admin_condominio %}
+      {% if user.is_admin_condominio or user.is_super_admin %}
       <li class="nav-item">
         <a class="nav-link" data-bs-toggle="collapse" href="#gestionConserje" role="button" aria-expanded="false" aria-controls="gestionConserje">
             <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -57,13 +57,13 @@
                 <li class="nav-item">
                     <a class="nav-link {% if 'listar-empleados' in segment %} active {% endif %}" href="{% url 'ver_conserjes' %}">
                         <span class="sidenav-mini-icon"> Conserjes </span>
-                        <span class="sidenav-normal"> Listar conserjes </span>
+                        <span class="sidenav-normal"> Empleados </span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if 'registrar-empleado' in segment %} active {% endif %}"  href="{% url 'crear_conserje' %}">
                         <span class="sidenav-mini-icon"> R </span>
-                        <span class="sidenav-normal"> Registro Conserje </span>
+                        <span class="sidenav-normal"> Nuevo Empleado </span>
                     </a>
                 </li>
             </ul>
@@ -136,11 +136,11 @@
                 <li class="nav-item">
                     <a class="nav-link {% if 'listado-estacionamientos' in segment %} active {% endif %}" href="{% url 'ver_estacionamientos' %}">
                         <span class="sidenav-mini-icon"> L </span>
-                        <span class="sidenav-normal"> Listado Estacionamientos </span>
+                        <span class="sidenav-normal"> Estacionamientos </span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if 'estacionamientos-reservados' in segment %} active {% endif %}" href="/reserva-estacionamiento.html">
+                    <a class="nav-link {% if 'estacionamientos-reservados' in segment %} active {% endif %}" href="{% url 'ver_reservas' %}">
                         <span class="sidenav-mini-icon"> R </span>
                         <span class="sidenav-normal"> Est. Reservados </span>
                     </a>
