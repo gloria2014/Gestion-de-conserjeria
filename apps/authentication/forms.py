@@ -1,16 +1,9 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
-
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-#from django.contrib.auth.models import User
 
 from django.contrib.auth import get_user_model
 from apps.authentication.models import Rol, Region, Comuna
 from .validators import validate_rut
-
 
 User = get_user_model()
 
@@ -60,15 +53,6 @@ class SignUpForm(UserCreationForm):
                 "class": "form-control"
             }
         ))
-    # rol = forms.ModelChoiceField(
-    #     queryset=Rol.objects.all(),
-    #     widget=forms.Select(
-    #         attrs={
-    #             "class": "form-control"
-    #         }
-    #     ),
-    #     required=True
-    # )
 
     class Meta:
         model = User

@@ -3,6 +3,9 @@ REQUISITOS
 1. Este proyecto se ejecuta con python 3.9
 2. mysql 8.0
 3. Instalar la libreria para weasyprint
+4. instalar mysql connector 8.0
+  https://downloads.mysql.com/archives/c-odbc/
+  
 
 
 ---- PASOS -------

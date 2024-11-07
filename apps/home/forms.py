@@ -1,6 +1,6 @@
 from django import forms
 from .models import Prueba
-from apps.authentication.models import Empleados, Region, Comuna
+from apps.authentication.models import Empleados, Region, Comuna, Rol
 from apps.home.models import (
  Estacionamiento, NumeroEstacionamiento, UbicacionEstacionamiento, 
  TipoEstacionamiento, EstadoEstacionamiento,ReservaEstacionamiento,
@@ -53,14 +53,41 @@ class EmpleadoForm(forms.ModelForm):
         empty_label="Seleccione"
     )
 
+    id_rol = forms.ModelChoiceField(
+        queryset=Rol.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+                "id": "id_rol",
+                "autocomplete": "off"
+            }
+        ),
+        required=True,
+        empty_label="Seleccione"
+    )
+   
+
+    clave_temporal = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Clave Temporal",
+                "autocomplete": "off"
+            }
+        ),
+        required=True
+    )
+
     class Meta:
         model = Empleados  # Asegúrate de que este es el modelo correcto
         fields = ['rut', 'nombres', 'apellido_paterno', 'apellido_materno', 'direccion',
-                   'telefono', 'correo_electronico', 'sexo', 'fecha_ingreso','id_region','id_comuna']
+                   'telefono', 'correo_electronico', 'sexo', 'fecha_ingreso','id_region',
+                   'id_comuna', 'id_rol','clave_temporal']
 
         widgets = {
             'fecha_ingreso': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_ingreso', 'autocomplete': 'off'}),
         #   'fecha_retiro': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_retiro'}),
+          
             }
     
     
@@ -78,8 +105,26 @@ class EmpleadoForm(forms.ModelForm):
     #comuna = forms.ModelChoiceField(queryset=Comuna.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
     fecha_ingreso = forms.DateField(widget=forms.TextInput(attrs={'class': 'form-control'}))
 
+  
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        if user:
+            # Limitamos el queryset de id_rol según el rol del usuario actual
+            if user.role == 'admin_condominio':
+                self.fields['id_rol'].queryset = Rol.objects.filter(nombre='conserje')
+            elif user.role == 'super_admin':
+                self.fields['id_rol'].queryset = Rol.objects.filter(nombre__in=['admin_condominio', 'conserje'])
+
+             # Imprimir los roles disponibles en el queryset para verificar
+            print("Roles disponibles en el formulario:", self.fields['id_rol'].queryset)
+
+
+        roles = Rol.objects.all()
+        print("roles disponibles:")
+        for rol in roles:
+            print(f"ID: {rol.id}, Nombre: {rol.nombre}")
+
         if 'id_region' in self.data:
             try:
                 region_id = int(self.data.get('id_region'))
@@ -157,99 +202,34 @@ class EstacionamientoForm(forms.ModelForm):
 
 
 
+
 class ReservaEstacionamientoForm(forms.ModelForm):
     numero_propiedad = forms.CharField(
         max_length=5,
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Número de Propiedad'})
     )
+    
     residente = forms.ModelChoiceField(
         queryset=Residentes.objects.none(),
         widget=forms.Select(
             attrs={
-                "class": "form-control d-none",
+                "class": "form-control d-none",  # Cambiar a d-none si quieres que sea invisible
                 "id": "id_residente",
                 "autocomplete": "off",
-                "onchange": "actualizarDatosResidente()"
-          
-            }
-        ),
-        required=False,
-        empty_label="Seleccione"
-    )
-
-
-    class Meta:
-        model = ReservaEstacionamiento
-        fields = [
-            'numero_propiedad',  # Agregar el campo de búsqueda
-            'propiedad',
-            'residente',  # Agregar el campo de selección de residente
-            'estacionamiento',
-            'empleado',
-            'rut_visita',
-            'nombre_visita',
-            'apellido_paterno_visita',
-            'apellido_materno_visita',
-            'telefono_visita',
-            'relacion_residente',
-            'patente_vehiculo',
-            'descripcion_vehiculo',
-            'tiempo_permanencia',
-            'fecha_llegada_visita',
-            'fecha_registro_visita'
-        ]
-        widgets = {
-            'propiedad': forms.Select(attrs={'class': 'form-control'}),
-            'estacionamiento': forms.Select(attrs={'class': 'form-control'}),
-            'empleado': forms.Select(attrs={'class': 'form-control'}),
-            'rut_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'nombre_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'apellido_paterno_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'apellido_materno_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'telefono_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'relacion_residente': forms.TextInput(attrs={'class': 'form-control'}),
-            'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
-            'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
-            'tiempo_permanencia': forms.TimeInput(attrs={'class': 'form-control'}),
-            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control'}),
-            'fecha_registro_visita': forms.DateTimeInput(attrs={'class': 'form-control'}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(ReservaEstacionamientoForm, self).__init__(*args, **kwargs)
-        if 'numero_propiedad' in self.data:
-            try:
-                numero_propiedad = self.data.get('numero_propiedad')
-                propiedad = Propiedad.objects.get(numero_propiedad=numero_propiedad)
-                self.fields['residente'].queryset = Residentes.objects.filter(propiedad=propiedad)
-            except (ValueError, TypeError, Propiedad.DoesNotExist):
-                self.fields['residente'].queryset = Residentes.objects.none()
-        elif self.instance.pk:
-            self.fields['residente'].queryset = self.instance.propiedad.residentes_set.all()
-
-
-
-
-    numero_propiedad = forms.CharField(max_length=5, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Número de Propiedad'}))
-    residente = forms.ModelChoiceField(
-        queryset=Residentes.objects.none(),
-        widget=forms.Select(
-            attrs={
-                "class": "form-control",
-                "id": "id_residente",
-                "autocomplete": "off"
+                "onchange": "actualizarDatosResidente()"  # Asume que tienes una función JavaScript
             }
         ),
         required=True,
         empty_label="Seleccione"
     )
+
     class Meta:
         model = ReservaEstacionamiento
         fields = [
-            'numero_propiedad',  # Agregar el campo de búsqueda
+            'numero_propiedad',  # Campo de búsqueda
             'propiedad',
-            'residente',  # Agregar el campo de selección de residente
+            'residente',          # Campo de selección de residente
             'estacionamiento',
             'empleado',
             'rut_visita',
@@ -278,3 +258,33 @@ class ReservaEstacionamientoForm(forms.ModelForm):
             'tiempo_permanencia': forms.TimeInput(attrs={'class': 'form-control'}),
             'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Si el campo 'numero_propiedad' está en los datos del formulario
+        if 'numero_propiedad' in self.data:
+            try:
+                numero_propiedad = self.data.get('numero_propiedad')
+                propiedad = Propiedad.objects.get(numero_propiedad=numero_propiedad)
+                
+                # Carga los residentes correspondientes a la propiedad
+                self.fields['residente'].queryset = Residentes.objects.filter(propiedad=propiedad)
+                
+            except (ValueError, TypeError, Propiedad.DoesNotExist):
+                self.fields['residente'].queryset = Residentes.objects.none()
+        
+        # Si el formulario se edita en modo instancia (al editar un objeto existente)
+        elif self.instance.pk:
+            self.fields['residente'].queryset = self.instance.propiedad.residentes_set.all()
+
+    def clean_residente(self):
+        # Obtén el valor de 'residente' del formulario
+        residente = self.cleaned_data.get('residente')
+        
+        # Asegurarse de que 'residente' esté en el queryset actual
+        if residente and residente not in self.fields['residente'].queryset:
+            raise forms.ValidationError("Seleccione una opción válida para el residente.")
+        
+        return residente
+

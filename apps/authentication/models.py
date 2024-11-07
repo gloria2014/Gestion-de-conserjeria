@@ -1,7 +1,10 @@
 
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager, User
 from .validators import validate_rut
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
 
 class Rol(models.Model):
     id = models.AutoField(primary_key=True)
@@ -30,22 +33,23 @@ class UserManager(BaseUserManager):
 
    
 class User(AbstractUser):
-    SUPERADMIN = 'superadmin'
+    SUPER_ADMIN = 'super_admin'
     ADMIN_CONDOMINIO = 'admin_condominio'
     CONSERJE = 'conserje'
 
     ROLE_CHOICES = [
-        (SUPERADMIN, 'Super Administrador'),
+        (SUPER_ADMIN, 'Super Administrador'),
         (ADMIN_CONDOMINIO, 'Administrador del Condominio'),
         (CONSERJE, 'Conserje'),
     ]
-    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default=CONSERJE)
+
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES, null=False, blank=True)  # Permitir null para evitar predeterminado 
     rol = models.ForeignKey(Rol, on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = UserManager()
     
-    def is_superadmin(self):
-        return self.rol and self.rol.nombre == 'superadmin'
+    def is_super_admin(self):
+        return self.rol and self.rol.nombre == 'super_admin'
 
     def is_admin_condominio(self):
         return self.rol and self.rol.nombre == 'admin_condominio'
@@ -83,7 +87,8 @@ class Empleados(models.Model):
     estado = models.CharField(max_length=10)
     id_region = models.ForeignKey(Region, on_delete=models.CASCADE) 
     id_comuna = models.ForeignKey(Comuna, on_delete=models.CASCADE)
-    id_rol = models.ForeignKey(Rol, on_delete=models.CASCADE, default=1)
+    id_rol = models.ForeignKey(Rol, on_delete=models.CASCADE)  # Relación de muchos a muchos con Rol
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)  # Relación de uno a uno con User
 
     def __str__(self):
         return f"{self.nombres} {self.apellido_paterno} {self.apellido_materno}"
@@ -93,3 +98,8 @@ class Empleados(models.Model):
             self.id_rol_id = 1  # Establecer el valor predeterminado para id_rol
         super().save(*args, **kwargs)
 
+
+@receiver(post_delete, sender=Empleados)
+def eliminar_usuario(sender, instance, **kwargs):
+    if instance.usuario:
+        instance.usuario.delete()

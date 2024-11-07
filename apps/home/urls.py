@@ -27,14 +27,17 @@ urlpatterns = [
     path('eliminar-conserje/<int:id>', views.eliminar_conserje_view, name='eliminar_conserje'),
     path('empleados-pdf/', views.exportar_conserjes_pdf, name='exportar_empleados_pdf'),
 
+
     path('estacionamientos/', views.ver_estacionamientos_view, name='ver_estacionamientos'),
     path('nuevo-estacionamiento/', views.crear_estacionamiento_view, name='crear_estacionamiento'),
     path('editar-estacionamiento/<int:id>', views.editar_estacionamiento_view, name='editar_estacionamiento'), 
 
+
+    path('reservas/', views.ver_reservas_view, name='ver_reservas'),
     path('nueva-reserva/', views.crear_reserva_view, name='crear_reserva'), 
     #path('nueva-reserva/', crear_reserva_view, name='crear_reserva'),
-    path('buscar-residentes/', buscar_residentes, name='buscar_residentes'),
-    
+
+    path('buscar-residentes/', buscar_residentes, name='buscar_residentes'),  
     path('obtener-datos-residente/', obtener_datos_residente, name='obtener_datos_residente'),
     path('obtener-datos-propiedad/', obtener_datos_propiedad, name='obtener_datos_propiedad'),
 
