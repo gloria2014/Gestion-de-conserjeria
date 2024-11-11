@@ -3,7 +3,25 @@
 {% block title %} Iniciar sesión {% endblock title %}
 
 <!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<style>
+  .btn-custom {
+      background: linear-gradient(87deg, #11cdef 0, #1171ef 100%);
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+  }
+  .btn-custom:hover {
+      background: linear-gradient(87deg, #1171ef 0, #11cdef 100%);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
 
@@ -33,39 +51,42 @@
                   </p>
                  
                 </div>
-                <div class="card-body">
+               
+                  <div class="card-body">
 
-                  <form role="form text-left" method="post" action="">
-                    
-                    {% csrf_token %}
-
-                    <label>Usuario</label>
-                    <div class="mb-3">
-                      {{ form.username }}
-                    </div>
-
-                    <label>Contraseña</label>
-                    <div class="mb-3">
-                      {{ form.password }}
-                    </div>
-
-                    <p class="mb-0">
-                      {% if msg %}
-                        <span class="text-danger">{{ msg | safe }}</span>
+                    <form role="form text-left" method="post" action="">
                       
-                      {% endif %}                     
-                    </p>
-                    <div class="text-center">
-                      <button type="submit" name="login" class="btn bg-gradient-info w-100 mt-4 mb-0">Ingresar</button>
-                    </div>
-
-                    <!-- <div class="text-center">
-                      <a href="{% url 'register' %}" class="btn bg-gradient-secondary w-100 mt-4 mb-0">Sign UP</a>
-                    </div> -->
-
-                  </form>
-
-                </div>
+                      {% csrf_token %}
+  
+                      <label>Usuario</label>
+                      <div class="mb-3">
+                        {{ form.username }}
+                      </div>
+  
+                      <label>Contraseña</label>
+                      <div class="mb-3">
+                        {{ form.password }}
+                      </div>
+  
+                      <p class="mb-0">
+                        {% if msg %}
+                          <span class="text-danger">{{ msg | safe }}</span>
+                        
+                        {% endif %}                     
+                      </p>
+                      <div class="text-center">
+                        <button type="submit" name="login" class="btn btn-custom w-100 mt-4 mb-0">Ingresar</button>
+                      </div>
+  
+                      <!-- <div class="text-center">
+                        <a href="{% url 'register' %}" class="btn bg-gradient-secondary w-100 mt-4 mb-0">Sign UP</a>
+                      </div> -->
+  
+                    </form>
+  
+                  </div>
+                
+                
                 <div class="card-footer text-center pt-0 px-lg-2 px-1">
                   <p class="mb-4 text-sm mx-auto">
 

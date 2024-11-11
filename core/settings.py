@@ -94,7 +94,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'conserjeria_2',
+        'NAME': 'conserjeria_1',
         'USER':'azure',
         'PASSWORD': 'Estrella.23',
         'HOST': 'servidorconserjeria01.mysql.database.azure.com',

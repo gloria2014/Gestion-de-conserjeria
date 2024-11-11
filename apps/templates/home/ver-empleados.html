@@ -12,7 +12,7 @@
     <div class="col-12">
       <div class="card mb-4">
         <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-          <h4>Listado de Conserjes</h4>
+          <h4>Empleados</h4>
        </div>
 
         <!-- Card para el formulario de búsqueda -->
@@ -36,13 +36,13 @@
                   <form method="GET" action="{% url 'ver_conserjes' %}" >
                     <div class="row align-items-center">
                       <div class="col-md-3">
-                        <input type="text" name="rut" class="form-control" placeholder="Buscar por RUT" value="{{ request.GET.rut }}">
+                        <input type="text" name="rut" class="form-control" placeholder="Buscar por RUT" value="{{ request.GET.rut }}"  autocomplete="off">
                       </div>
                       <div class="col-md-3">
-                        <input type="text" name="nombres" class="form-control" placeholder="Buscar por Nombre" value="{{ request.GET.nombres }}">
+                        <input type="text" name="nombres" class="form-control" placeholder="Buscar por Nombre" value="{{ request.GET.nombres }}"  autocomplete="off">
                       </div>
                       <div class="col-md-3">
-                        <input type="text" name="correo_electronico" class="form-control" placeholder="Buscar por Correo" value="{{ request.GET.correo_electronico }}">
+                        <input type="text" name="correo_electronico" class="form-control" placeholder="Buscar por Correo" value="{{ request.GET.correo_electronico }}" autocomplete="off">
                       </div>
                       <div class="col-md-3 d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary formato-texto me-2"><i class="fas fa-search"></i> Buscar</button>

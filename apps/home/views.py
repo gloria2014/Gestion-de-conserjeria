@@ -1,8 +1,9 @@
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django import template
+
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from django.urls import reverse
@@ -12,17 +13,16 @@ from weasyprint import HTML
 
 from .models import Prueba
 from django.db.models import Q
-from apps.authentication.models import Region, Comuna, Empleados, User
+from apps.authentication.models import Region, Comuna, Empleados, User  # Importar User desde apps.authentication.models
 from apps.home.models import (
     Estacionamiento, TipoEstacionamiento, 
     UbicacionEstacionamiento, ReservaEstacionamiento, EstadoEstacionamiento,
-    NumeroEstacionamiento, Propiedad, Residentes)
+    NumeroEstacionamiento, Propiedad, Residentes
+)
 
-from .forms import( PruebaForm, EmpleadoForm, EstacionamientoForm,
- ReservaEstacionamientoForm)
+from .forms import PruebaForm, EmpleadoForm, EstacionamientoForm, ReservaEstacionamientoForm, EmpleadoEditForm, ProfileForm
 
 import logging
-
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ def editar_conserje_view(request, id):
         field_value = getattr(empleado, field_name)
         print(f"{field_name}: {field_value}")
 
-    formulario = EmpleadoForm(request.POST or None, instance=empleado)
+    formulario = EmpleadoEditForm(request.POST or None, instance=empleado)
 
     if formulario.is_valid() and request.POST:
         formulario.save()
@@ -142,10 +142,8 @@ def exportar_conserjes_pdf(request):
     html.write_pdf(response)
     return response
 
-
 @login_required(login_url="/login/")
 def crear_conserje_view(request):
-    #formulario = EmpleadoForm(request.POST or None)
     print("Rol del usuario actual   :::::", request.user.role)
     formulario = EmpleadoForm(request.POST or None, user=request.user)
    
@@ -155,7 +153,6 @@ def crear_conserje_view(request):
     if request.method == "POST":
         print("viene del post ::::: " ,request.POST)
         
-
         if formulario.is_valid():
             print("formulario valido ::::: " ,formulario)
             # Tomar los campos del formulario de empleado
@@ -164,22 +161,28 @@ def crear_conserje_view(request):
             apellido_paterno = formulario.cleaned_data.get("apellido_paterno")
             apellido_materno = formulario.cleaned_data.get("apellido_materno")
             email = formulario.cleaned_data.get("correo_electronico")
-            username = email.split('@')[0]  # Usar parte del correo como nombre de usuario
-            #raw_password = User.objects.make_random_password()  # Generar una contraseña aleatoria
             raw_password = formulario.cleaned_data.get("clave_temporal")  
-           
             rol = formulario.cleaned_data.get("id_rol")
+
+            # Generar el nombre de usuario a partir del primer nombre y el primer apellido
+            base_username = f"{nombres.split()[0].lower()}.{apellido_paterno.lower()}"
+            username = base_username
+            counter = 1
+
+            # Asegurarse de que el nombre de usuario sea único
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{counter:02d}"
+                counter += 1
 
             # Validar que el rut no se repita en la tabla de empleados
             if Empleados.objects.filter(rut=rut).exists():
                 msg = 'Empleado ya existe'
                 return render(request, "home/registrar-conserje.html", {"formulario": formulario, "msg": msg, "success": success})
 
-             # Validar que el nombre de usuario no se repita en la tabla de usuarios
-            if User.objects.filter(username=username).exists():
-                msg = 'Nombre de usuario ya existe'
+            # Validar que el correo de usuario no se repita en la tabla de usuarios
+            if User.objects.filter(email=email).exists():
+                msg = 'Correo electrónico ya existe'
                 return render(request, "home/registrar-conserje.html", {"formulario": formulario, "msg": msg, "success": success})
-
 
             # Crear el usuario
             user = User.objects.create_user(
@@ -193,7 +196,10 @@ def crear_conserje_view(request):
             user.role = rol.nombre  # Asignar el nombre del rol al usuario
             user.save()
             
-            print("usuario creado ::::: " ,user)
+            # Imprimir los datos del usuario y su ID
+            print("Usuario creado ::::: ", user)
+            print("ID del usuario creado ::::: ", user.id)
+            
             # Crear el empleado asociado al usuario
             empleado = formulario.save(commit=False)
             empleado.usuario = user
@@ -211,6 +217,7 @@ def crear_conserje_view(request):
             msg = 'Form is not valid'
 
     return render(request, "home/registrar-conserje.html",{"formulario": formulario, "msg": msg, "success": success})
+
 
 # ------------------------ SECCIÓN ESTACIONAMIENTOS MANTENEDOR  --------------------
 
@@ -524,4 +531,24 @@ def eliminar_observacion_view(request, id):
     obj.delete()
     return redirect('ver_observaciones') 
     
-    
+
+
+@login_required(login_url="/login/")
+def profile_view(request):
+    user = request.user
+    if request.method == "POST":
+        print("request.POST ::::: ", request.POST)
+        form = ProfileForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            # este emnsaje es el sweetalert exito
+            #messages.success(request, 'La contraseña se ha actualizado con éxito.')
+            return redirect('/')
+        #else:
+            #form.errors.clear()
+            # por ahora no se usa gatilla cunado hay erro levanta sweetalert
+            #messages.error(request, 'Por favor, corrija los errores.')
+    else:
+        print("request.GET ::::: ", request.GET)
+        form = ProfileForm(instance=user)
+    return render(request, 'home/profile.html', {'form': form})

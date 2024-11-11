@@ -1,10 +1,15 @@
 from django import forms
 from .models import Prueba
-from apps.authentication.models import Empleados, Region, Comuna, Rol
+from apps.authentication.models import(
+    Empleados, Region, Comuna, Rol, User)
+
 from apps.home.models import (
  Estacionamiento, NumeroEstacionamiento, UbicacionEstacionamiento, 
  TipoEstacionamiento, EstadoEstacionamiento,ReservaEstacionamiento,
   Propiedad, Residentes)
+
+from django.contrib.auth.password_validation import validate_password
+
 
 
 class PruebaForm(forms.ModelForm):
@@ -134,6 +139,106 @@ class EmpleadoForm(forms.ModelForm):
         elif self.instance.pk:
             self.fields['id_comuna'].queryset = self.instance.id_region.comuna_set.order_by('nombre')
 
+class EmpleadoEditForm(forms.ModelForm):
+    id_region = forms.ModelChoiceField(
+        queryset=Region.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+                "id": "id_region",
+                "autocomplete": "off"
+            }
+        ),
+        required=True,
+        empty_label="Seleccione"
+    )
+    id_comuna = forms.ModelChoiceField(
+        queryset=Comuna.objects.none(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+                "id": "id_comuna",
+                "autocomplete": "off"
+            }
+        ),
+        required=True,
+        empty_label="Seleccione"
+    )
+
+    id_rol = forms.ModelChoiceField(
+        queryset=Rol.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+                "id": "id_rol",
+                "autocomplete": "off"
+            }
+        ),
+        required=True,
+        empty_label="Seleccione"
+    )
+   
+
+
+    class Meta:
+        model = Empleados  # Asegúrate de que este es el modelo correcto
+        fields = ['rut', 'nombres', 'apellido_paterno', 'apellido_materno', 'sexo', 'fecha_ingreso',
+                   'id_rol','direccion', 'telefono', 'correo_electronico', 'id_region',
+                   'id_comuna']
+
+        widgets = {
+            'fecha_ingreso': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_ingreso', 'autocomplete': 'off'}),
+        #   'fecha_retiro': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_retiro'}),
+          
+            }
+    
+    
+    rut = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '111111111-1', 'autocomplete': 'off'}))
+    apellido_paterno = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
+    telefono = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
+    direccion = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
+    sexo = forms.ChoiceField(
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input', 'autocomplete': 'off'}),
+        choices=[('M', 'Masculino'), ('F', 'Femenino')]
+    )
+    nombres = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    apellido_materno = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    correo_electronico = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    fecha_ingreso = forms.DateField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+  
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            # Limitamos el queryset de id_rol según el rol del usuario actual
+            if user.role == 'admin_condominio':
+                self.fields['id_rol'].queryset = Rol.objects.filter(nombre='conserje')
+            elif user.role == 'super_admin':
+                self.fields['id_rol'].queryset = Rol.objects.filter(nombre__in=['admin_condominio', 'conserje'])
+
+             # Imprimir los roles disponibles en el queryset para verificar
+            print("Roles disponibles en el formulario:", self.fields['id_rol'].queryset)
+
+
+        roles = Rol.objects.all()
+        print("roles disponibles:")
+        for rol in roles:
+            print(f"ID: {rol.id}, Nombre: {rol.nombre}")
+
+        if 'id_region' in self.data:
+            try:
+                region_id = int(self.data.get('id_region'))
+                self.fields['id_comuna'].queryset = Comuna.objects.filter(region_id=region_id).order_by('nombre')
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty queryset
+        elif self.instance.pk:
+            self.fields['id_comuna'].queryset = self.instance.id_region.comuna_set.order_by('nombre')
+
+        # Deshabilitar campos específicos
+        disabled_fields = ['rut', 'nombres', 'apellido_paterno', 'apellido_materno', 'sexo', 'fecha_ingreso', 'id_rol']
+        for field in disabled_fields:
+            self.fields[field].widget.attrs['disabled'] = True
 
 class EstacionamientoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -199,8 +304,6 @@ class EstacionamientoForm(forms.ModelForm):
     class Meta:
         model = Estacionamiento
         fields = ['numero_estacionamiento', 'ubicacion', 'tipo_estacionamiento', 'estado_estacionamiento']
-
-
 
 
 class ReservaEstacionamientoForm(forms.ModelForm):
@@ -288,3 +391,47 @@ class ReservaEstacionamientoForm(forms.ModelForm):
         
         return residente
 
+
+class ProfileForm(forms.ModelForm):
+    new_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=False,
+        label="Nueva Contraseña"
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=False,
+        label="Confirmar Nueva Contraseña",
+        max_length=15
+    )
+
+    class Meta:
+        model = User
+        fields = ['new_password', 'confirm_password']
+      
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if new_password and new_password != confirm_password:
+            self.add_error('confirm_password', "Las contraseñas no coinciden.")
+
+        if new_password == "" or confirm_password == "":
+            self.add_error('confirm_password', "Debe ingresar su nueva clave")
+            
+
+        if new_password:
+            validate_password(new_password)
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        new_password = self.cleaned_data.get("new_password")
+        if new_password:
+            user.set_password(new_password)
+        if commit:
+            user.save()
+        return user

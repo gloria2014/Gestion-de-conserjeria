@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def login_view(request):
     form = LoginForm(request.POST or None)
     msg = None
-
+    
     if request.method == "POST":
         if form.is_valid():
             username = form.cleaned_data.get("username")
@@ -29,6 +29,7 @@ def login_view(request):
             if user is not None:
                 # Intentamos iniciar sesión y luego verificamos el rol del usuario
                 login(request, user)
+                request.session['username'] = user.username  # Almacenar el nombre de usuario en la sesión
 
                 # Si el usuario es super_admin, omitimos la validación de empleado_id
                 if user.is_super_admin():
@@ -50,7 +51,6 @@ def login_view(request):
             msg = 'Error al validar el formulario'
 
     return render(request, "accounts/login.html", {"form": form, "msg": msg})
-
 # REGISTRO DE USUARIOS 
 def register_user(request):
     msg = None
