@@ -11,6 +11,9 @@ urlpatterns = [
     path('', views.index, name='home'), # ESTA LINEA ES LA ORIGINAL 
     #path('', views.inicio, name='inicio'), # esta linea seria el inicio de la pagina del ejemplo de youtube
     
+    path('profile/', views.profile_view, name='profile'),
+    path('inicio/', views.index, name='inicio'),
+
     path('ver-observaciones/', views.ver_observaciones_view, name='ver_observaciones'),
     path('crear-observacion/', views.crear_observacion_view, name='crear_observacion'),
     path('editar-observacion/', views.editar_observacion_view, name='editar_observacion'),

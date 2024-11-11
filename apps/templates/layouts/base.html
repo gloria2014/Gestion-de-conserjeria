@@ -43,9 +43,11 @@
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
 
     {% include "includes/navigation.html" %} 
+    <div style="margin-top: -1rem;">
+      {% block content %}{% endblock content %}
 
-    {% block content %}{% endblock content %}
-
+    </div>
+    
   </main>
 
   <!-- Core JS Files -->
