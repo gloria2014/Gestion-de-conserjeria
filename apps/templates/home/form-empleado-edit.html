@@ -1,75 +1,106 @@
-<h4>soy el edit</h4>    <form enctype="multipart/form-data" id="personEditForm" method="post" autocomplete="off" novalidate>
-    {% csrf_token %}
-    
-    <div class="row">
-      {% for campo in formulario %}
-        <div class="col-md-6">
-          <div class="form-group mb-4">
-            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
-            {% if campo.name == 'sexo' %}
-              <div>
-                {% for subcampo in campo %}
-                  <div class="form-check form-check-inline">
-                    {{ subcampo.tag }}
-                    <label class="form-check-label" for="{{ subcampo.id_for_label }}">
-                      {{ subcampo.choice_label }}
-                    </label>
-                  </div>
-                {% endfor %}
-              </div>
-            {% else %}
-              {{ campo }}
-            {% endif %}
-          </div>
-          {% if campo.errors %}
-            <div class="help-text">{{ campo.errors }}</div>
-          {% endif %}
-        </div>
-      {% endfor %}
-    </div>
+<form enctype="multipart/form-data" id="personEditForm" method="post" autocomplete="off" novalidate>
+  {% csrf_token %}
   
-        <!-- Campos ocultos para los valores deshabilitados -->
-        <input type="hidden" name="rut" value="{{ formulario.rut.value }}">
-        <input type="hidden" name="nombres" value="{{ formulario.nombres.value }}">
-        <input type="hidden" name="apellido_paterno" value="{{ formulario.apellido_paterno.value }}">
-        <input type="hidden" name="apellido_materno" value="{{ formulario.apellido_materno.value }}">
-        <input type="hidden" name="sexo" value="{{ formulario.sexo.value }}">    
-        <input type="hidden" name="fecha_ingreso" value="{{ formulario.fecha_ingreso.value|date:'Y-m-d' }}">
-        <input type="hidden" name="id_rol" value="{{ formulario.id_rol.value }}">
+  <div class="row justify-content-center">
+      <div class="col-md-11">
+       
+        <div class="text-center custom-card-header">
+          <h6>EDITAR EMPLEADO</h6>
+        </div>
+        <div class="row">  
+              {% for campo in formulario %}
+                  <div class="col-md-6">
+                      <div class="form-group mb-3">
+                          <label for="{{ campo.id_for_label }}" class="form-label">{{ campo.label }}</label>
+                         
+                          {% if campo.name == 'fecha_ingreso' %}
+                            {{ campo.value|date:"Y-m-d" }}
+                          {% endif %}
 
+                          {% if campo.name == 'sexo' %}
+                              <div>
+                                  {% for subcampo in campo %}
+                                      <div class="form-check form-check-inline">
+                                          {{ subcampo.tag }}
+                                          <label class="form-check-label" for="{{ subcampo.id_for_label }}">
+                                              {{ subcampo.choice_label }}
+                                          </label>
+                                      </div>
+                                  {% endfor %}
+                              </div>
+                          
+                          {% else %}
+                              {{ campo }}
+                          {% endif %}
+                      </div>
+                      {% if campo.errors %}
+                          <div class="text-danger small">{{ campo.errors }}</div>
+                      {% endif %}
+                  </div>
+              {% endfor %}
+        </div>
+
+    <!-- Mostrar los datos del formulario -->
+    <div class="row">
+      <div class="col-md-12">
+          <h5>Datos del Formulario:</h5>
+          <ul>
+              {% for campo in formulario %}
+                  <li><strong>{{ campo.label }}:</strong> {{ campo.value }}</li>
+              {% endfor %}
+          </ul>
+      </div>
+  </div>
+
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    <li>{{ field }}: {{ errors|striptags }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+          {% endif %}
+          {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                  {{ form.non_field_errors }}
+              </div>
+          {% endif %}
         
-    {% if form.errors %}
-      <div class="alert alert-danger">
-        <ul>
-          {% for field, errors in form.errors.items %}
-            <li>{{ field }}: {{ errors|striptags }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-    {% if form.non_field_errors %}
-      <div class="alert alert-danger">
-        {{ form.non_field_errors }}
-      </div>
-    {% endif %}
+          {% if msg %}
+              <div class="alert alert-danger">
+                  {{ msg }}
+              </div>
+          {% endif %}
 
-    {% if msg %}
-    <div class="alert alert-danger">
-      {{ msg }}
-    </div>
-    {% endif %}
-
-    <div class="text-center">
-        <input type="submit" class="btn btn-success btn-lg" value="Guardar">
-        <button type="button" class="btn btn-secondary btn-lg" onclick="resetForm()">Limpiar</button>
+        <div class="row">
+          <div class="col-md-6 d-grid mb-3">
+              <input type="submit" class="btn btn-success" value="Guardar">
+          </div>
+          <div class="col-md-6 d-grid mb-3">
+              <button type="button" class="btn btn-secondary" onclick="resetForm()">Limpiar</button>
+          </div>
       </div>
+
+      </div>
+  </div>
+
+  <!-- Campos ocultos para los valores deshabilitados -->
+  <input type="hidden" name="rut" value="{{ formulario.rut.value }}">
+  <input type="hidden" name="nombres" value="{{ formulario.nombres.value }}">
+  <input type="hidden" name="apellido_paterno" value="{{ formulario.apellido_paterno.value }}">
+  <input type="hidden" name="apellido_materno" value="{{ formulario.apellido_materno.value }}">
+  <input type="hidden" name="sexo" value="{{ formulario.sexo.value }}">    
+  <input type="hidden" name="fecha_ingreso" value="{{ formulario.fecha_ingreso.value|date:'Y-m-d' }}">
+  <input type="hidden" name="id_rol" value="{{ formulario.id_rol.value }}">
+
+
 
 </form>
 
 <script>
-    function resetForm() {
+  function resetForm() {
       document.getElementById('personEditForm').reset();
-    }
-
-    
-  </script>
+  }
+</script>

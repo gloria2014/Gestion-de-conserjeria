@@ -7,22 +7,19 @@
 
 {% block content %}
 
-    <div class="container-fluid py-4">
-      
-      <div class="card mb-4">
-        <div class="card-header pb-0">
-          <h4>Editar Conserje</h4>
-        </div>
-        <div class="card-body">
-
-         {% include "home/form-empleado-edit.html" %}
-         
-          
-        </div>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+      <div class="col-md-10">
+          <div class="custom-card shadow-sm">
+              <div class="custom-card-body p-4">
+                  {% include "home/form-empleado-edit.html" %}
+              </div>
+          </div>
       </div>
-      {% include "includes/footer.html" %}
+  </div>
+</div>
+  {% include "includes/footer.html" %}
 
-    </div>
     
 {% endblock content %}
 

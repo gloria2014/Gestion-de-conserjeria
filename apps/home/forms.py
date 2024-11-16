@@ -43,7 +43,8 @@ class EmpleadoForm(forms.ModelForm):
             }
         ),
         required=True,
-        empty_label="Seleccione"
+        empty_label="Seleccione",
+        label="Región"
     )
     id_comuna = forms.ModelChoiceField(
         queryset=Comuna.objects.none(),
@@ -55,7 +56,8 @@ class EmpleadoForm(forms.ModelForm):
             }
         ),
         required=True,
-        empty_label="Seleccione"
+        empty_label="Seleccione",
+        label="Comuna"
     )
 
     id_rol = forms.ModelChoiceField(
@@ -68,7 +70,8 @@ class EmpleadoForm(forms.ModelForm):
             }
         ),
         required=True,
-        empty_label="Seleccione"
+        empty_label="Seleccione",
+        label="Rol"
     )
    
 
@@ -150,7 +153,8 @@ class EmpleadoEditForm(forms.ModelForm):
             }
         ),
         required=True,
-        empty_label="Seleccione"
+        empty_label="Seleccione",
+        label="Región"
     )
     id_comuna = forms.ModelChoiceField(
         queryset=Comuna.objects.none(),
@@ -162,7 +166,8 @@ class EmpleadoEditForm(forms.ModelForm):
             }
         ),
         required=True,
-        empty_label="Seleccione"
+        empty_label="Seleccione",
+        label="Comuna"
     )
 
     id_rol = forms.ModelChoiceField(
@@ -175,7 +180,8 @@ class EmpleadoEditForm(forms.ModelForm):
             }
         ),
         required=True,
-        empty_label="Seleccione"
+        empty_label="Seleccione",
+        label="Rol"
     )
    
 
@@ -186,11 +192,11 @@ class EmpleadoEditForm(forms.ModelForm):
                    'id_rol','direccion', 'telefono', 'correo_electronico', 'id_region',
                    'id_comuna']
 
-        widgets = {
-            'fecha_ingreso': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_ingreso', 'autocomplete': 'off'}),
-        #   'fecha_retiro': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_retiro'}),
+        # widgets = {
+        #     'fecha_ingreso': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_ingreso', 'autocomplete': 'off'}),
+        # #   'fecha_retiro': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_retiro'}),
           
-            }
+        #     }
     
     
     rut = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '111111111-1', 'autocomplete': 'off'}))
@@ -204,7 +210,7 @@ class EmpleadoEditForm(forms.ModelForm):
     nombres = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
     apellido_materno = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
     correo_electronico = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    fecha_ingreso = forms.DateField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    fecha_ingreso = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
 
   
     def __init__(self, *args, **kwargs):
@@ -358,8 +364,8 @@ class ReservaEstacionamientoForm(forms.ModelForm):
             'relacion_residente': forms.TextInput(attrs={'class': 'form-control'}),
             'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
-            'tiempo_permanencia': forms.TimeInput(attrs={'class': 'form-control'}),
-            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control'}),
+            'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia'}),
+            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_registra_visita'}),
         }
 
     def __init__(self, *args, **kwargs):

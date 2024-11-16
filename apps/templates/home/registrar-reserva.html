@@ -6,31 +6,12 @@
 
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="card mb-4">
-        <div class="card-header pb-0">
-            <h4>Nueva Reserva</h4>
+    <div class="custom-card mb-4">
+        <div class="text-center custom-card-header">
+            <h6>NUEVA RESERVA</h6>
         </div>
-        <div class="card-body">
-
-            <div class="card mb-1 mt-1">
-                <div class="card-body p-4" style="padding: 0.5rem !important;">
-                    <form method="get" action="{% url 'crear_reserva' %}" id="buscarPropiedadForm">
-                        <div class="row">
-                            <div class="col-md-12 d-flex justify-content-between align-items-center">
-                                <input type="text" id="numero_propiedad" name="numero_propiedad" class="form-control me-2" 
-                                placeholder="Ingrese número de la propiedad" style="flex: 1;">
-                                <button type="submit" class="btn btn-primary formato-texto me-2" style="margin-bottom: 0;">
-                                    <i class="fas fa-search"></i> Buscar</button>
-                                <a href="{% url 'ver_conserjes' %}" class="btn btn-secondary formato-texto" style="margin-bottom: 0;">
-                                  <i class="fas fa-eraser"></i> Limpiar
-                                </a>
-                            </div>                      
-                        </div>                  
-                    </form>
-                </div>
-            </div>
-            
-            {% include "home/form-reserva-estacionamiento.html" %}
+        <div class="custom-card-body">
+            {% include "home/form-reserva-2.html" %}
         </div>
     </div>
     {% include "includes/footer.html" %}
@@ -62,23 +43,9 @@
       <div class="modal fade" id="estacionamientosModal" tabindex="-1" aria-labelledby="estacionamientosModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="estacionamientosModalLabel">Estacionamientos Disponibles</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Número</th>
-                    <th>Ubicación</th>
-                  </tr>
-                </thead>
-                <tbody id="estacionamientosTableBody">
-                  <!-- Los datos se llenarán mediante JavaScript -->
-                </tbody>
-              </table>
-            </div>
+           
+            {% include "home/ver-estacionamientos-disponibles.html" %}
+           
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
@@ -88,18 +55,72 @@
 {% endblock content %}
 
 {% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
 
-document.getElementById('estacionamientosModal2').addEventListener('submit', function(event) {
-    event.preventDefault();
+// document.getElementById('estacionamientosModal2').addEventListener('submit', function(event) 
+// {
+//     event.preventDefault();
+//     $('#estacionamientosModal').modal('hide');
+// });
+
+    // CARGA LOS ESTACIONAMIENTOS EN EL MODAL
     
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const estacionamientosBody = document.getElementById('estacionamientos-body');
+    
+    async function cargarEstacionamientos() {
+        fetch('/estacionamientos-disponibles/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.estacionamientos) {
+                const tableBody = document.getElementById('estacionamientos-body');
+                tableBody.innerHTML = ''; // Limpiar el contenido anterior
+
+                data.estacionamientos.forEach(estacionamiento => {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-id', estacionamiento.id);
+                    row.innerHTML = `
+                        <td>${estacionamiento.numero}</td>
+                        <td>${estacionamiento.ubicacion}</td>
+                        <td>${estacionamiento.tipo}</td>
+                    `;
+                    
+                    row.addEventListener('click', function() {
+                        seleccionarEstacionamiento(estacionamiento.id, estacionamiento.numero, estacionamiento.ubicacion);
+                    });
+                    tableBody.appendChild(row);
+                });
+            } else {
+                alert('No hay estacionamientos disponibles.');
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar estacionamientos:', error);
+            alert('Ocurrió un error al cargar los datos.');
+        });
+    }
+
+    cargarEstacionamientos();
+});
+
+function seleccionarEstacionamiento(id, numero, ubicacion) {
+    document.getElementById('estacionamiento').value = id;
+    document.getElementById('numero_estacionamiento').value = numero;
+    document.getElementById('ubicacion_estacionamiento').value = ubicacion;
     $('#estacionamientosModal').modal('hide');
-    });
-    document.getElementById('buscarPropiedadForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    var numeroPropiedad = document.getElementById('numero_propiedad').value;
+}
+
+
+
+    document.getElementById('buscarPropiedadForm').addEventListener('submit', function(event)
+    {
+         event.preventDefault();
+        var numeroPropiedad = document.getElementById('numero_propiedad').value;
         
-    fetch(`/obtener-datos-propiedad/?numero_propiedad=${numeroPropiedad}`)
+        fetch(`/obtener-datos-propiedad/?numero_propiedad=${numeroPropiedad}`)
         .then(response => response.json())
         .then(data => { 
             
@@ -135,28 +156,31 @@ document.getElementById('estacionamientosModal2').addEventListener('submit', fun
 
 
     });
+    // FUNCION QUE GATILLA DESPUES DE SELECCIONAR UN RESIDENTE DEL MODAL
 
     document.getElementById('seleccionarResidenteBtn').addEventListener('click', function() {
         var dropdown = document.getElementById('residentesDropdown');
         var selectedResidenteId = dropdown.value;
         if (selectedResidenteId) {
             document.getElementById('residente').value = selectedResidenteId;
-            alert(document.getElementById('residente').value);
             actualizarDatosResidente(selectedResidenteId);
             $('#residentesModal').modal('hide');
+            document.getElementById('datosResidente').style.display = 'block';
         } else {
             alert('Seleccione un residente');
+            document.getElementById('datosResidente').style.display = 'none';
         }
     });
 
-          // Función para actualizar el campo oculto con el ID del residente seleccionado
+  
+    
+    // Función para actualizar el campo oculto con el ID del residente seleccionado
     // document.getElementById('id_residente').addEventListener('change', function() {
     //     var selectedResidenteId = this.value;
     //     document.getElementById('residente_id').value = selectedResidenteId;
     // });
 
     function actualizarDatosResidente(residenteId) {
-
         if (residenteId) {
             fetch(`/obtener-datos-residente/?residente_id=${residenteId}`)
                 .then(response => response.json())
@@ -176,7 +200,7 @@ document.getElementById('estacionamientosModal2').addEventListener('submit', fun
         document.getElementById("id_propiedad").value = id;
     }
 
-
+    
 
 </script>
 {% endblock javascripts %}
