@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 
 from .models import Prueba
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from apps.authentication.models import Region, Comuna, Empleados, User  # Importar User desde apps.authentication.models
 from apps.home.models import (
     Estacionamiento, TipoEstacionamiento, 
@@ -212,55 +212,54 @@ def crear_conserje_view(request):
             success = True
 
             return redirect('ver_conserjes')
-        else:
-            print("Errores del formulario:", formulario.errors)
-            msg = 'Form is not valid'
+      
 
     return render(request, "home/registrar-conserje.html",{"formulario": formulario, "msg": msg, "success": success})
 
 
 # ------------------------ SECCIÓN ESTACIONAMIENTOS MANTENEDOR  --------------------
 
-# @login_required(login_url="/login/")
-# def ver_estacionamientos_view(request):
-#     query = Q()
-#     if 'numero_estacionamiento' in request.GET and request.GET['numero_estacionamiento']:
-#         query &= Q(rut__icontains=request.GET['numero_estacionamiento'])
-
-#     if 'ubicacion' in request.GET and request.GET['ubicacion']:   
-#         query &= Q(ubicacion=request.GET['ubicacion'])
-
-#     if 'tipo_estacionamiento' in request.GET and request.GET['tipo_estacionamiento']:
-#         query &= Q(tipo_estacionamiento=request.GET['tipo_estacionamiento'])
-
-#     if 'estado_estacionamiento' in request.GET and request.GET['estado_estacionamiento']:
-#         query &= Q(estado_estacionamiento=request.GET['estado_estacionamiento'])
-
-#     estacionamientos = Estacionamiento.objects.filter(query)
-#     return render(request, 'home/ver-estacionamientos.html', {'estacionamientosObj': estacionamientos})
+from django.db.models import Prefetch
 
 @login_required(login_url="/login/")
 def ver_estacionamientos_view(request):
     query = Q()
     if 'numero_estacionamiento' in request.GET and request.GET['numero_estacionamiento']:
-        query &= Q(numero_estacionamiento=request.GET['numero_estacionamiento'])
+        query &= Q(numero_estacionamiento__nombre=request.GET['numero_estacionamiento'])
 
-    if 'ubicacion' in request.GET and request.GET['ubicacion']:   
-        query &= Q(ubicacion=request.GET['ubicacion'])
+    if 'ubicacion' in request.GET and request.GET['ubicacion']:
+        query &= Q(ubicacion__nombre=request.GET['ubicacion'])
 
     if 'tipo_estacionamiento' in request.GET and request.GET['tipo_estacionamiento']:
-        query &= Q(tipo_estacionamiento=request.GET['tipo_estacionamiento'])
+        query &= Q(tipo_estacionamiento__nombre=request.GET['tipo_estacionamiento'])
 
     if 'estado_estacionamiento' in request.GET and request.GET['estado_estacionamiento']:
-        query &= Q(estado_estacionamiento=request.GET['estado_estacionamiento'])
+        query &= Q(estado_estacionamiento__nombre=request.GET['estado_estacionamiento'])
 
-    estacionamientos = Estacionamiento.objects.filter(query)
-    
-    # Obtener las opciones para los filtros
-    numeros_estacionamiento = NumeroEstacionamiento.objects.all()
-    ubicaciones = UbicacionEstacionamiento.objects.all()
-    tipos_estacionamiento = TipoEstacionamiento.objects.all()
-    estados_estacionamiento = EstadoEstacionamiento.objects.all()
+    # Filtrar los estacionamientos
+    estacionamientos = Estacionamiento.objects.filter(query).select_related(
+        'numero_estacionamiento',
+        'ubicacion',
+        'tipo_estacionamiento',
+        'estado_estacionamiento'
+    )
+
+    # Obtener los valores únicos para los filtros basados en registros existentes en Estacionamiento
+    numeros_estacionamiento = NumeroEstacionamiento.objects.filter(
+        estacionamiento__isnull=False  # Relación inversa para validar existencia
+    ).distinct()
+
+    ubicaciones = UbicacionEstacionamiento.objects.filter(
+        estacionamiento__isnull=False
+    ).distinct()
+
+    tipos_estacionamiento = TipoEstacionamiento.objects.filter(
+        estacionamiento__isnull=False
+    ).distinct()
+
+    estados_estacionamiento = EstadoEstacionamiento.objects.filter(
+        estacionamiento__isnull=False
+    ).distinct()
 
     return render(request, 'home/ver-estacionamientos.html', {
         'estacionamientosObj': estacionamientos,
@@ -269,6 +268,45 @@ def ver_estacionamientos_view(request):
         'tipos_estacionamiento': tipos_estacionamiento,
         'estados_estacionamiento': estados_estacionamiento,
     })
+
+@login_required(login_url="/login/")
+def ver_estacionamientos_disponibles_original_view(request):
+    estacionamiento = Estacionamiento.objects.filter(estado_estacionamiento=1)
+
+    if estacionamiento.exists():  # Verifica si hay datos en el QuerySet
+        first_item = estacionamiento.first()  # Obtén la primera instancia
+        for field in first_item._meta.fields:
+            field_name = field.name
+            field_value = getattr(first_item, field_name, None)  # Obtén el valor del campo
+            print("ESTACIONAMIENTOS DISPONIBLES")
+            print(f"{field_name}: {field_value}")
+    else:
+        print("No se encontraron estacionamientos disponibles.")
+
+    return render(request, 'home/ver-estacionamientos-disponibles.html', {'estacionamientosObj': estacionamiento})
+
+@login_required(login_url="/login/")
+def ver_estacionamientos_disponibles_view(request):
+    if request.method == "GET":
+        estacionamientos = Estacionamiento.objects.filter(estado_estacionamiento=1).select_related(
+            'numero_estacionamiento', 'ubicacion', 'tipo_estacionamiento'
+        )
+
+        if estacionamientos.exists():
+            estacionamientos_list = [
+                {
+                    'id': estacionamiento.id,
+                    'numero': estacionamiento.numero_estacionamiento.nombre,
+                    'ubicacion': estacionamiento.ubicacion.nombre,
+                    'tipo': estacionamiento.tipo_estacionamiento.nombre,
+                }
+                for estacionamiento in estacionamientos
+            ]
+            return JsonResponse({'estacionamientos': estacionamientos_list}, status=200)
+        else:
+            return JsonResponse({'error': 'No hay estacionamientos disponibles'}, status=404)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
 
 @login_required(login_url="/login/")
 def crear_estacionamiento_view(request):
@@ -382,11 +420,12 @@ def ver_reservas_view(request):
         numero_estacionamiento = None
         if reserva.estacionamiento:
             try:
-                numero_estacionamiento = NumeroEstacionamiento.objects.get(id=reserva.estacionamiento).numero
+                numero_estacionamiento = NumeroEstacionamiento.objects.get(id=reserva.estacionamiento).nombre
             except NumeroEstacionamiento.DoesNotExist:
                 numero_estacionamiento = None
 
         reservas_list.append({
+            'id': reserva.id,
             'rut_visita': reserva.rut_visita,
             'nombre_completo': f"{reserva.nombre_visita} {reserva.apellido_paterno_visita} {reserva.apellido_materno_visita}",
             'relacion_residente': reserva.relacion_residente,
@@ -397,6 +436,11 @@ def ver_reservas_view(request):
         })
 
     return render(request, 'home/ver-reservas.html', {'reservasObj': reservas_list})
+
+
+# ACA ME QUEDE FALTA AGREGAR: AL RESERVAR EL CAMPO estado de la tabla home_numeroestacionamiento
+# debe pasar a 0 y agregar un campos a la tabla home_estacionamiento cuando se haya selccionado un estacionamiento
+# desde el modal. Actualmente no actualiza el estado de la tabla home_numeroestacionamiento.
 
 @login_required(login_url="/login/")
 def crear_reserva_view(request):
@@ -485,7 +529,27 @@ def crear_reserva_view(request):
     return render(request, 'home/registrar-reserva.html', {'formulario': formulario, 'residentes': residentes, 'msg': msg})
 
 
-
+@login_required(login_url="/login/")
+def eliminar_reserva_view(request, id):
+    reserva = get_object_or_404(ReservaEstacionamiento, id=id)
+    
+    # Actualizar el estado del estacionamiento a disponible
+    if reserva.estacionamiento:
+        estacionamiento = get_object_or_404(Estacionamiento, id=reserva.estacionamiento)
+        estacionamiento.estado_estacionamiento = EstadoEstacionamiento.objects.get(nombre='Disponible')
+        estacionamiento.save()
+        
+        # Actualizar el estado del número de estacionamiento a 0 (disponible)
+        numero_estacionamiento = estacionamiento.numero_estacionamiento
+        numero_estacionamiento.estado = '0'
+        numero_estacionamiento.save()
+    
+    # Eliminar la reserva
+    reserva = ReservaEstacionamiento.objects.get(id=id)
+    reserva.delete()
+    
+    messages.success(request, 'La reserva ha sido eliminada exitosamente.')
+    return redirect('ver_reservas')
 
 # ----------------- RUTAS PARA IR A LAS PAGINAS  DE OBSERVACIONES ---------------------------
 

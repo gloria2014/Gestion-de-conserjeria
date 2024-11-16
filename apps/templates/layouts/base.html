@@ -28,7 +28,11 @@
 
     <!-- Bootstrap Datepicker CSS -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 
   <!-- Specific CSS goes HERE -->
   <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}"> <!-- Asegúrate de que la ruta sea correcta -->
@@ -62,8 +66,16 @@
   <!-- Bootstrap JS -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <!-- Bootstrap Datepicker JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
+  <style>
+    .flatpickr-calendar {
+      max-width: 12rem !important; 
+      left: 834.469px !important
+    }
+  </style>
   <script type="text/javascript">
     $(document).ready(function () 
     {
@@ -95,7 +107,8 @@
       $('#id_fecha_registra_visita').datepicker({
           format: 'yyyy-mm-dd',
           autoclose: true,
-          todayHighlight: true
+          todayHighlight: true,
+          startDate: new Date()
       });
 
       $('#id_fecha_llegada_visita').datepicker({
@@ -103,7 +116,23 @@
           autoclose: true,
           todayHighlight: true
       });
-
+      
+      flatpickr("#tiempo_permanencia", {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: "H:00",
+      time_24hr: true,
+      defaultHour: 1,
+      minuteIncrement: 60,
+      minTime: "01:00",
+      maxTime: "08:00",
+      onReady: function(selectedDates, dateStr, instance) {
+        instance.setMinute(0); // Set the minute to 0
+      },
+      onChange: function(selectedDates, dateStr, instance) {
+        instance.setMinute(0); // Set the minute to 0
+      }
+    });
    
        // Función genérica para mostrar el modal de confirmación
     window.confirmDelete = function(url) {

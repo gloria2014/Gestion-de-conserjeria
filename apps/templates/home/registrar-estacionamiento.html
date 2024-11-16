@@ -5,23 +5,22 @@
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}{% endblock stylesheets %}
 
+
 {% block content %}
 
-    <div class="container-fluid py-4">
-      
-      <div class="card mb-4">
-        <div class="card-header pb-0">
-          <h4>Nuevo Estacionamiento</h4>
-        </div>
-        <div class="card-body">
-             
-         {% include "home/form-estacionamiento.html" %}
-           
-        </div>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+      <div class="col-md-10">
+          <div class="custom-card shadow-sm">
+              <div class="custom-card-body p-4">
+                {% include "home/form-estacionamiento.html" %}
+              </div>
+          </div>
       </div>
-      {% include "includes/footer.html" %}
+  </div>
+</div>
+  {% include "includes/footer.html" %}
 
-    </div>
     
 {% endblock content %}
 

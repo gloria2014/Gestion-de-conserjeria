@@ -32,6 +32,7 @@ urlpatterns = [
 
 
     path('estacionamientos/', views.ver_estacionamientos_view, name='ver_estacionamientos'),
+    path('estacionamientos-disponibles/', views.ver_estacionamientos_disponibles_view, name='ver_estacionamientos_disponibles'),
     path('nuevo-estacionamiento/', views.crear_estacionamiento_view, name='crear_estacionamiento'),
     path('editar-estacionamiento/<int:id>', views.editar_estacionamiento_view, name='editar_estacionamiento'), 
 
@@ -39,6 +40,7 @@ urlpatterns = [
     path('reservas/', views.ver_reservas_view, name='ver_reservas'),
     path('nueva-reserva/', views.crear_reserva_view, name='crear_reserva'), 
     #path('nueva-reserva/', crear_reserva_view, name='crear_reserva'),
+    path('eliminar-reserva/<int:id>', views.eliminar_reserva_view, name='eliminar_reserva'),
 
     path('buscar-residentes/', buscar_residentes, name='buscar_residentes'),  
     path('obtener-datos-residente/', obtener_datos_residente, name='obtener_datos_residente'),
