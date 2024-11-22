@@ -184,21 +184,12 @@ class EmpleadoEditForm(forms.ModelForm):
         label="Rol"
     )
    
-
-
     class Meta:
         model = Empleados  # Asegúrate de que este es el modelo correcto
         fields = ['rut', 'nombres', 'apellido_paterno', 'apellido_materno', 'sexo', 'fecha_ingreso',
                    'id_rol','direccion', 'telefono', 'correo_electronico', 'id_region',
                    'id_comuna']
 
-        # widgets = {
-        #     'fecha_ingreso': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_ingreso', 'autocomplete': 'off'}),
-        # #   'fecha_retiro': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_retiro'}),
-          
-        #     }
-    
-    
     rut = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '111111111-1', 'autocomplete': 'off'}))
     apellido_paterno = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
     telefono = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
@@ -329,10 +320,14 @@ class ReservaEstacionamientoForm(forms.ModelForm):
                 "onchange": "actualizarDatosResidente()"  # Asume que tienes una función JavaScript
             }
         ),
-        required=True,
+        required=False,
         empty_label="Seleccione"
     )
 
+    id_residente2 = forms.IntegerField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"id": "id_residente2"})
+    )
     class Meta:
         model = ReservaEstacionamiento
         fields = [
@@ -350,7 +345,8 @@ class ReservaEstacionamientoForm(forms.ModelForm):
             'patente_vehiculo',
             'descripcion_vehiculo',
             'tiempo_permanencia',
-            'fecha_llegada_visita'
+            'fecha_llegada_visita',
+            'id_residente2'
         ]
         widgets = {
             'propiedad': forms.Select(attrs={'class': 'form-control'}),
@@ -366,6 +362,7 @@ class ReservaEstacionamientoForm(forms.ModelForm):
             'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia'}),
             'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_registra_visita'}),
+            'id_residente2': forms.HiddenInput(attrs={'id': 'id_residente2'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -387,15 +384,194 @@ class ReservaEstacionamientoForm(forms.ModelForm):
         elif self.instance.pk:
             self.fields['residente'].queryset = self.instance.propiedad.residentes_set.all()
 
-    def clean_residente(self):
-        # Obtén el valor de 'residente' del formulario
-        residente = self.cleaned_data.get('residente')
+     
+    def clean(self):
+        cleaned_data = super().clean()
+        id_residente2 = cleaned_data.get('id_residente2')
+
+        if not id_residente2:
+            self.add_error('id_residente2', "No se recibió el ID del residente.")
+        else:
+            try:
+                residente = Residentes.objects.get(pk=id_residente2)
+                cleaned_data['residente'] = residente  # Asociar el residente a la reserva
+            except Residentes.DoesNotExist:
+                self.add_error('id_residente2', "El ID del residente no es válido.")
+
+        return cleaned_data
+   
+from django import forms
+from .models import ReservaEstacionamiento, Propiedad, Residentes
+
+class ReservaEstacionamientoEditForm(forms.ModelForm):
+    numero_propiedad = forms.CharField(
+        max_length=5,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Número de Propiedad'})
+    )
+    residente = forms.ModelChoiceField(
+        queryset=Residentes.objects.none(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control d-none",  # Cambiar a d-none si quieres que sea invisible
+                "id": "id_residente",
+                "autocomplete": "off",
+                "onchange": "actualizarDatosResidente()"  # Asume que tienes una función JavaScript
+            }
+        ),
+        required=False,
+        empty_label="Seleccione"
+    )
+
+    llave_estacionamiento = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"id": "llave_estacionamiento"})
+    )
+
+    class Meta:
+        model = ReservaEstacionamiento
+        fields = [
+            'numero_propiedad',  # Campo de búsqueda
+            'residente',          # Campo de selección de residente
+            'propiedad',
+            'estacionamiento',
+            'empleado',
+            'rut_visita',
+            'nombre_visita',
+            'apellido_paterno_visita',
+            'apellido_materno_visita',
+            'telefono_visita',
+            'relacion_residente',
+            'patente_vehiculo',
+            'descripcion_vehiculo',
+            'tiempo_permanencia',
+            'fecha_llegada_visita'
+            
+        ]
+        widgets = {
+            'propiedad': forms.Select(attrs={'class': 'form-control'}),
+            'estacionamiento': forms.Select(attrs={'class': 'form-control'}),
+            'empleado': forms.Select(attrs={'class': 'form-control'}),
+            'rut_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'nombre_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'apellido_paterno_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'apellido_materno_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'telefono_visita': forms.TextInput(attrs={'class': 'form-control'}),
+            'relacion_residente': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
+            'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia'}),
+            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_registra_visita'}),
+       }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
-        # Asegurarse de que 'residente' esté en el queryset actual
-        if residente and residente not in self.fields['residente'].queryset:
-            raise forms.ValidationError("Seleccione una opción válida para el residente.")
+        # Si el campo 'numero_propiedad' está en los datos del formulario
+        if 'numero_propiedad' in self.data:
+            try:
+                numero_propiedad = self.data.get('numero_propiedad')
+                propiedad = Propiedad.objects.get(numero_propiedad=numero_propiedad)
+                
+                # Carga los residentes correspondientes a la propiedad
+                self.fields['residente'].queryset = Residentes.objects.filter(propiedad=propiedad)
+                
+            except (ValueError, TypeError, Propiedad.DoesNotExist):
+                self.fields['residente'].queryset = Residentes.objects.none()
         
-        return residente
+        # Si el formulario se edita en modo instancia (al editar un objeto existente)
+        elif self.instance.pk:
+            self.fields['residente'].queryset = self.instance.propiedad.residentes_set.all()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # Eliminar la lógica relacionada con id_residente2
+        return cleaned_data
+
+class ReservaEstacionamientoVerDetalleForm(forms.ModelForm):
+    numero_propiedad = forms.CharField(
+        max_length=5,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Número de Propiedad'})
+    )
+    residente = forms.ModelChoiceField(
+        queryset=Residentes.objects.none(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control d-none",  # Cambiar a d-none si quieres que sea invisible
+                "id": "id_residente",
+                "autocomplete": "off",
+                "onchange": "actualizarDatosResidente()"  # Asume que tienes una función JavaScript
+            }
+        ),
+        required=False,
+        empty_label="Seleccione"
+    )
+
+    llave_estacionamiento = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"id": "llave_estacionamiento"})
+    )
+
+    class Meta:
+        model = ReservaEstacionamiento
+        fields = [
+            'numero_propiedad',  # Campo de búsqueda
+            'residente',          # Campo de selección de residente
+            'propiedad',
+            'estacionamiento',
+            'empleado',
+            'rut_visita',
+            'nombre_visita',
+            'apellido_paterno_visita',
+            'apellido_materno_visita',
+            'telefono_visita',
+            'relacion_residente',
+            'patente_vehiculo',
+            'descripcion_vehiculo',
+            'tiempo_permanencia',
+            'fecha_llegada_visita'
+            
+        ]
+        widgets = {
+            'propiedad': forms.Select(attrs={'class': 'form-control'}),
+            'estacionamiento': forms.Select(attrs={'class': 'form-control'}),
+            'empleado': forms.Select(attrs={'class': 'form-control'}),
+            'rut_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'nombre_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'apellido_paterno_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'apellido_materno_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'telefono_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'relacion_residente': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia', 'readonly': 'readonly'}), 
+            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_registra_visita', 'readonly': 'readonly'}),
+       }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Si el campo 'numero_propiedad' está en los datos del formulario
+        if 'numero_propiedad' in self.data:
+            try:
+                numero_propiedad = self.data.get('numero_propiedad')
+                propiedad = Propiedad.objects.get(numero_propiedad=numero_propiedad)
+                
+                # Carga los residentes correspondientes a la propiedad
+                self.fields['residente'].queryset = Residentes.objects.filter(propiedad=propiedad)
+                
+            except (ValueError, TypeError, Propiedad.DoesNotExist):
+                self.fields['residente'].queryset = Residentes.objects.none()
+        
+        # Si el formulario se edita en modo instancia (al editar un objeto existente)
+        elif self.instance.pk:
+            self.fields['residente'].queryset = self.instance.propiedad.residentes_set.all()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # Eliminar la lógica relacionada con id_residente2
+        return cleaned_data
 
 
 class ProfileForm(forms.ModelForm):

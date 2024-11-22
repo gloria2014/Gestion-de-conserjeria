@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from django.urls import reverse
+from django.utils import timezone
 
 from django.template.loader import render_to_string
 from weasyprint import HTML
@@ -20,7 +21,10 @@ from apps.home.models import (
     NumeroEstacionamiento, Propiedad, Residentes
 )
 
-from .forms import PruebaForm, EmpleadoForm, EstacionamientoForm, ReservaEstacionamientoForm, EmpleadoEditForm, ProfileForm
+from .forms import (
+     PruebaForm, EmpleadoForm, EstacionamientoForm, 
+     ReservaEstacionamientoForm, EmpleadoEditForm, 
+     ProfileForm, ReservaEstacionamientoEditForm, ReservaEstacionamientoVerDetalleForm)
 
 import logging
 
@@ -291,6 +295,11 @@ def ver_estacionamientos_disponibles_view(request):
         estacionamientos = Estacionamiento.objects.filter(estado_estacionamiento=1).select_related(
             'numero_estacionamiento', 'ubicacion', 'tipo_estacionamiento'
         )
+        
+        print("Estacionamientos disponibles 1:")
+        for estacionamiento in estacionamientos:
+            print(f"ID: {estacionamiento.id}, Número: {estacionamiento.numero_estacionamiento.nombre}, Ubicación: {estacionamiento.ubicacion.nombre}, Tipo: {estacionamiento.tipo_estacionamiento.nombre}")
+
 
         if estacionamientos.exists():
             estacionamientos_list = [
@@ -302,6 +311,11 @@ def ver_estacionamientos_disponibles_view(request):
                 }
                 for estacionamiento in estacionamientos
             ]
+
+            print("Estacionamientos disponibles 2 :")
+            for estacionamiento in estacionamientos_list:
+                print(estacionamiento)
+
             return JsonResponse({'estacionamientos': estacionamientos_list}, status=200)
         else:
             return JsonResponse({'error': 'No hay estacionamientos disponibles'}, status=404)
@@ -350,9 +364,13 @@ def editar_estacionamiento_view(request, id):
         messages.error(request, "Hay errores en el formulario. Por favor, corrígelos.")
   
     return render(request, 'home/editar-estacionamiento.html', {
-        'formulario': formulario,
-        'numero_estacionamiento_hidden': formulario['numero_estacionamiento'].value()
-    })
+    'formulario': formulario,
+    'numero_estacionamiento': estacionamiento.numero_estacionamiento.nombre,
+    'ubicacion_estacionamiento': estacionamiento.ubicacion.nombre
+})
+
+
+
 
 # -------------- SECCIÓN RESERVAS ----------------------------
 
@@ -376,6 +394,7 @@ def obtener_datos_residente(request):
         try:
             residente = Residentes.objects.get(id=residente_id)
             datos_residente = {
+                'id': residente.id,
                 'nombre_completo': f'{residente.nombres} {residente.apellido_paterno} {residente.apellido_materno}',
                 'telefono': residente.telefono
             }
@@ -433,33 +452,30 @@ def ver_reservas_view(request):
             'descripcion_vehiculo': reserva.descripcion_vehiculo,
             'numero_estacionamiento': numero_estacionamiento,
             'fecha_registro_visita': reserva.fecha_registro_visita,
+            'estado_estacionamiento': reserva.estado_estacionamiento
         })
 
     return render(request, 'home/ver-reservas.html', {'reservasObj': reservas_list})
 
 
-# ACA ME QUEDE FALTA AGREGAR: AL RESERVAR EL CAMPO estado de la tabla home_numeroestacionamiento
-# debe pasar a 0 y agregar un campos a la tabla home_estacionamiento cuando se haya selccionado un estacionamiento
-# desde el modal. Actualmente no actualiza el estado de la tabla home_numeroestacionamiento.
-
 @login_required(login_url="/login/")
 def crear_reserva_view(request):
+    id_residente2 = request.POST.get('id_residente2')
+    print("ID del residente recibido:", id_residente2)
     msg = None
     # Obtenemos el formulario con los datos POST si están presentes
     empleado_id = request.session.get('empleado_id')
     initial_data = {'empleado_id': empleado_id}
 
     formulario = ReservaEstacionamientoForm(request.POST or None)
-    print(" 1 request post::::::::::::::: ", request.POST)
     numero_propiedad = request.POST.get('propiedad', '').strip() or request.GET.get('numero_propiedad', '').strip()
-    
 
     if numero_propiedad is not None:
         try:
             if isinstance(numero_propiedad, dict):
                 numero_propiedad = numero_propiedad.get('id')
                 numero_propiedad = int(numero_propiedad)
-                print("numero_propiedad int ::::::::::::::: ", numero_propiedad)
+
         except ValueError:
             print("Error: numero_propiedad no es un número válido.")
             numero_propiedad = None
@@ -468,8 +484,6 @@ def crear_reserva_view(request):
         print("Error: numero_propiedad es None.")
         numero_propiedad = None
 
-
-    print("numero_propiedad ::::::::::::::: ", numero_propiedad)
     residentes = None  # Inicializar la variable residentes
    
     if numero_propiedad:
@@ -495,10 +509,7 @@ def crear_reserva_view(request):
         # Asigna el queryset de residentes a los campos del formulario
         formulario.fields['residente'].queryset = residentes
 
-
-
         if request.method == 'GET':
-            print(" 2 rquest get ::::::::::::::: ", request.GET)
             # Configura los valores iniciales para el formulario
             formulario = ReservaEstacionamientoForm(initial={
                 'propiedad': propiedad.id,
@@ -507,17 +518,34 @@ def crear_reserva_view(request):
                 'apellido_materno_visita': residentes[0].apellido_materno if residentes else '',
                 'telefono_visita': residentes[0].telefono if residentes else '',
             })
+
         elif request.method == 'POST':
+            id_residente2 = request.POST.get('id_residente2')
+            print("ID del residente recibido:", id_residente2)
             print(" 3 rquest post ::::::::::::::: ", request.POST)
-            print("Valor de 'residente' en request.POST:", request.POST.get('residente'))
+          
             # Valida y guarda el formulario si es válido
             if formulario.is_valid():
                 reserva = formulario.save(commit=False)
 
                 # Asigna el ID del empleado logueado
                 reserva.empleado_id = empleado_id
-                
+                reserva.estado_estacionamiento = 'Reservado'
+                reserva.id_residente2 = id_residente2
+
                 reserva.save()  # Guarda la reserva
+
+                # Actualizar el estado del estacionamiento a reservado
+                if reserva.estacionamiento:
+                    estacionamiento = get_object_or_404(Estacionamiento, id=reserva.estacionamiento)
+                    estacionamiento.estado_estacionamiento = EstadoEstacionamiento.objects.get(id=3)  # Estado reservado
+                    estacionamiento.save()
+                    
+                    # Actualizar el estado del número de estacionamiento a 0 (no disponible)
+                    numero_estacionamiento = estacionamiento.numero_estacionamiento
+                    numero_estacionamiento.estado = '0'
+                    numero_estacionamiento.save()
+
                 return redirect('ver_reservas')
             else:
                 messages.error(request, "Errores en el formulario. Por favor corrígelos.")
@@ -530,22 +558,176 @@ def crear_reserva_view(request):
 
 
 @login_required(login_url="/login/")
+def confirmar_reserva_view(request, id):
+    reserva = get_object_or_404(ReservaEstacionamiento, id=id)
+    
+    # Actualizar el estado del estacionamiento a ocupado
+    if reserva.estacionamiento:
+        estacionamiento = get_object_or_404(Estacionamiento, id=reserva.estacionamiento)
+        estacionamiento.estado_estacionamiento = EstadoEstacionamiento.objects.get(nombre='Ocupado')
+        estacionamiento.save()
+        
+        # Actualizar campo fecha_llegada_visita_confirmada con la fecha y hora actual
+        reserva.fecha_llegada_visita_confirmada = timezone.now()
+        reserva.estado_estacionamiento = 'Ocupado'
+    
+    # Actualizar la reserva
+    reserva.save()
+    
+    messages.success(request, 'Reserva confirmada exitosamente.')
+    return redirect('ver_reservas')
+
+#Modifica algunos datos, puede o no cambiar de estacionamiento
+@login_required(login_url="/login/")
+def editar_reserva_view(request, id):
+    # Obtener la reserva
+    reserva = get_object_or_404(ReservaEstacionamiento, id=id)
+    propiedad = reserva.propiedad
+
+    # Obtener información del estacionamiento basado en el id
+    estacionamiento = None
+    numero_estacionamiento = "Sin asignar"
+    ubicacion_estacionamiento = "Sin asignar"
+
+    if reserva.estacionamiento:  # Solo buscar si el ID del estacionamiento no es None
+        try:
+            estacionamiento = Estacionamiento.objects.get(id=reserva.estacionamiento)
+            numero_estacionamiento = estacionamiento.numero_estacionamiento.nombre
+            ubicacion_estacionamiento = estacionamiento.ubicacion.nombre
+            llave_estacionamiento = estacionamiento.id 
+
+        except Estacionamiento.DoesNotExist:
+            pass  # Mantener los valores por defecto si no existe el estacionamiento
+
+    # Obtener la información del residente
+    try:
+        residente = Residentes.objects.get(id=reserva.id_residente2)
+    except Residentes.DoesNotExist:
+        residente = None  # Si no hay residente asociado, asignar None
+
+    # Procesamiento del formulario al recibir una solicitud POST
+
+    if request.method == 'POST':
+        print(" 3 rquest post ::::::::::::::: ", request.POST)
+
+        formulario = ReservaEstacionamientoEditForm(request.POST, instance=reserva)
+        if formulario.is_valid():
+            llave_estacionamiento = formulario.cleaned_data.get('llave_estacionamiento')
+            print(f"Valor del campo oculto: {llave_estacionamiento}")
+            reserva = formulario.save(commit=False)
+
+            # 0. validar si el campo estacionamiento viene vacio o null. Si es asi, no actauliza estacionamiento.
+            estacionamiento_id = request.POST.get('estacionamiento')
+
+            if reserva.estacionamiento:
+               
+               if estacionamiento_id:   
+                    # 1. Actualiza el  estacionamiento con uno nuevo (actualiza el campo estado = 1(Dispinible) y el campo estado = 1 de la tabla numeroestacionamiento)                
+                    try:
+                        estacionamiento = Estacionamiento.objects.get(id=reserva.estacionamiento)
+                        estacionamiento.estado_estacionamiento = EstadoEstacionamiento.objects.get(nombre='Reservado')#Id=3
+                        estacionamiento.save()
+
+                        # Actualizar el estado del número de estacionamiento a 0 (no disponible)
+                        numero_estacionamiento = estacionamiento.numero_estacionamiento
+                        numero_estacionamiento.estado = '0'
+                        numero_estacionamiento.save()
+
+                        # 2. Cambia el estado del estacionamiento anterior a disponible y el numero de estacionamiento a 1 (en su tabla numeroestacionamiento)
+                        estacionamiento = Estacionamiento.objects.get(id=llave_estacionamiento)
+                        estacionamiento.estado_estacionamiento = EstadoEstacionamiento.objects.get(nombre='Disponible') 
+                        estacionamiento.save()
+
+                        numero_estacionamiento = estacionamiento.numero_estacionamiento
+                        numero_estacionamiento.estado = '1'
+                        numero_estacionamiento.save()
+
+                    except Estacionamiento.DoesNotExist:
+                        messages.warning(request, "El estacionamiento asociado no existe.")
+
+            else:
+                print("No se proporcionó un estacionamiento en el formulario.") 
+                reserva.estacionamiento = llave_estacionamiento
+                
+            reserva.save()
+
+            messages.success(request, 'Reserva actualizada exitosamente.')
+            return redirect('ver_reservas')
+        else:
+            messages.error(request, "Errores en el formulario. Por favor corrígelos.")
+            print("Errores del formulario:", formulario.errors)
+            msg = formulario.errors
+    else:
+        formulario = ReservaEstacionamientoEditForm(instance=reserva)
+    
+    return render(request, 'home/editar-reserva.html', {
+        'formulario': formulario,
+        'reserva': reserva,
+        'propiedad': propiedad,
+        'numero_estacionamiento': numero_estacionamiento,
+        'ubicacion_estacionamiento': ubicacion_estacionamiento,
+        'llave_estacionamiento': llave_estacionamiento,
+        'residente': residente
+    })
+
+@login_required(login_url="/login/")
+def detalle_reserva_view(request, id):
+    # Obtener la reserva
+    reserva = get_object_or_404(ReservaEstacionamiento, id=id)
+    propiedad = reserva.propiedad
+
+    # Obtener información del estacionamiento basado en el id
+    estacionamiento = None
+    numero_estacionamiento = "Sin asignar"
+    ubicacion_estacionamiento = "Sin asignar"
+
+    if reserva.estacionamiento:  # Solo buscar si el ID del estacionamiento no es None
+        try:
+            estacionamiento = Estacionamiento.objects.get(id=reserva.estacionamiento)
+            numero_estacionamiento = estacionamiento.numero_estacionamiento.nombre
+            ubicacion_estacionamiento = estacionamiento.ubicacion.nombre
+            llave_estacionamiento = estacionamiento.id 
+
+        except Estacionamiento.DoesNotExist:
+            pass  # Mantener los valores por defecto si no existe el estacionamiento
+
+    # Obtener la información del residente
+    try:
+        residente = Residentes.objects.get(id=reserva.id_residente2)
+    except Residentes.DoesNotExist:
+        residente = None  # Si no hay residente asociado, asignar None
+
+    formulario = ReservaEstacionamientoVerDetalleForm(instance=reserva)
+    
+    return render(request, 'home/ver-reserva-detalle.html', {
+        'formulario': formulario,
+        'reserva': reserva,
+        'propiedad': propiedad,
+        'numero_estacionamiento': numero_estacionamiento,
+        'ubicacion_estacionamiento': ubicacion_estacionamiento,
+        'llave_estacionamiento': llave_estacionamiento,
+        'residente': residente
+    })
+
+@login_required(login_url="/login/")
 def eliminar_reserva_view(request, id):
     reserva = get_object_or_404(ReservaEstacionamiento, id=id)
     
-    # Actualizar el estado del estacionamiento a disponible
+    # Actualizar el estado del estacionamiento a disponible u ocupado
     if reserva.estacionamiento:
         estacionamiento = get_object_or_404(Estacionamiento, id=reserva.estacionamiento)
-        estacionamiento.estado_estacionamiento = EstadoEstacionamiento.objects.get(nombre='Disponible')
-        estacionamiento.save()
+        
+        # Verificar el estado actual del estacionamiento
+        if estacionamiento.estado_estacionamiento.nombre in ['Ocupado', 'Reservado']:
+            estacionamiento.estado_estacionamiento = EstadoEstacionamiento.objects.get(nombre='Disponible')
+            estacionamiento.save()
         
         # Actualizar el estado del número de estacionamiento a 0 (disponible)
         numero_estacionamiento = estacionamiento.numero_estacionamiento
-        numero_estacionamiento.estado = '0'
+        numero_estacionamiento.estado = '1'
         numero_estacionamiento.save()
     
     # Eliminar la reserva
-    reserva = ReservaEstacionamiento.objects.get(id=id)
     reserva.delete()
     
     messages.success(request, 'La reserva ha sido eliminada exitosamente.')

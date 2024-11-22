@@ -39,7 +39,9 @@ urlpatterns = [
 
     path('reservas/', views.ver_reservas_view, name='ver_reservas'),
     path('nueva-reserva/', views.crear_reserva_view, name='crear_reserva'), 
-    #path('nueva-reserva/', crear_reserva_view, name='crear_reserva'),
+    path('editar-reserva/<int:id>', views.editar_reserva_view, name='editar_reserva'),
+    path('detalle-reserva/<int:id>', views.detalle_reserva_view, name='detalle_reserva'),
+    path('confirmar-reserva/<int:id>', views.confirmar_reserva_view, name='confirmar_reserva'),
     path('eliminar-reserva/<int:id>', views.eliminar_reserva_view, name='eliminar_reserva'),
 
     path('buscar-residentes/', buscar_residentes, name='buscar_residentes'),  

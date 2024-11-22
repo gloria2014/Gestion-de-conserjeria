@@ -17,8 +17,10 @@
   <!-- Nucleo Icons -->
   <link href="{{ ASSETS_ROOT }}/css/nucleo-icons.css" rel="stylesheet" />
   <link href="{{ ASSETS_ROOT }}/css/nucleo-svg.css" rel="stylesheet" />
+ 
   <!-- Font Awesome Icons -->
-  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+ 
   <link href="{{ ASSETS_ROOT }}/css/nucleo-svg.css" rel="stylesheet" />
   <!-- CSS Files -->
   <link id="pagestyle" href="{{ ASSETS_ROOT }}/css/soft-ui-dashboard.css?v=1.0.6" rel="stylesheet" />
@@ -66,20 +68,12 @@
   <!-- Bootstrap JS -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <!-- Bootstrap Datepicker JS -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
-  <style>
-    .flatpickr-calendar {
-      max-width: 12rem !important; 
-      left: 834.469px !important
-    }
-  </style>
+
   <script type="text/javascript">
     $(document).ready(function () 
     {
-      //alert("hola 2222");
         $('#id_region').change(function () {
             var url = '{% url "ajax_load_comunas" %}';  // URL de la vista que devuelve las comunas
             var regionId = $(this).val();  // Obtener el ID de la región seleccionada
@@ -117,39 +111,42 @@
           todayHighlight: true
       });
       
-      flatpickr("#tiempo_permanencia", {
-      enableTime: true,
-      noCalendar: true,
-      dateFormat: "H:00",
-      time_24hr: true,
-      defaultHour: 1,
-      minuteIncrement: 60,
-      minTime: "01:00",
-      maxTime: "08:00",
-      onReady: function(selectedDates, dateStr, instance) {
-        instance.setMinute(0); // Set the minute to 0
-      },
-      onChange: function(selectedDates, dateStr, instance) {
-        instance.setMinute(0); // Set the minute to 0
-      }
-    });
    
        // Función genérica para mostrar el modal de confirmación
-    window.confirmDelete = function(url) {
+    window.confirmDelete = function(url, mensaje) {
       Swal.fire({
         title: '¿Estás seguro?',
-        text: "¡No podrás revertir esto!",
+        text: mensaje,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminarlo'
+        confirmButtonText: 'Sí, finalizar',
+        cancelButtonText: 'Cancelar'
       }).then((result) => {
         if (result.isConfirmed) {
           window.location.href = url;
         }
       })
     }
+    
+    window.confirmAction = function(url, mensaje) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: mensaje,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, confirmar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = url;
+      }
+    })
+  }
+
 
    
     });
