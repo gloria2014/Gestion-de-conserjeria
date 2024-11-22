@@ -56,6 +56,7 @@
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nombre Completo</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Patente Vehículo</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Fecha Registro</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Estado</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Acción</th>
                 </tr>
               </thead>
@@ -79,12 +80,23 @@
                   <td>
                     <p class="text-xs text-secondary mb-0">{{ reserva.fecha_registro_visita }}</p>
                   </td>
-                  <td class="align-middle">
+                  <td>
+                    <p class="text-xs text-secondary mb-0">{{ reserva.estado_estacionamiento }}</p>
+                  </td>
+                  <td class="align-middle text-center">
                     <input type="hidden" name="id" value="{{ reserva.id }}">
-                    <a class="btn btn-info btn-sm" href="#">Editar</a>
+                    
                     {% if reserva.id %}
-                    <a href="#" class="btn btn-danger btn-sm" onclick="confirmDelete('{% url 'eliminar_reserva' reserva.id %}')">Eliminar</a>
-                
+                    {% if reserva.estado_estacionamiento == 'Ocupado' %}
+                      <button class="btn btn-success btn-sm" disabled>Confirmado</button>
+                      <button class="btn btn-info btn-info" disabled>Modificar</button>
+                    {% else %}
+                      <a href="#" class="btn btn-success btn-sm" onclick="confirmAction('{% url 'confirmar_reserva' reserva.id %}', 'Confirmar la Reserva')">Confirmar</a>
+                      <a class="btn btn-info btn-info" href="{% url 'editar_reserva' reserva.id %}">Modificar</a>   
+                      {% endif %}
+
+                    <a class="btn btn-custom" href="{% url 'detalle_reserva' reserva.id %}">Ver Detalle</a>                        
+                    <a href="#" class="btn btn-danger btn-sm" onclick="confirmDelete('{% url 'eliminar_reserva' reserva.id %}', 'Finalizar la Reserva')">Finalizar</a>                
                     {% else %}
                           <span>No disponible</span>
                       {% endif %}
