@@ -139,7 +139,7 @@ def eliminar_conserje_view(request, id):
 @login_required(login_url="/login/")
 def exportar_conserjes_pdf(request):
     conserjes = Empleados.objects.all()
-    html_string = render_to_string('home/empleados-pdf.html', {'empleados': conserjes})
+    html_string = render_to_string('home/pdf-empleados.html', {'empleados': conserjes})
     html = HTML(string=html_string)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename=conserjes.pdf'
@@ -406,12 +406,18 @@ def obtener_datos_propiedad(request):
 
 @login_required(login_url="/login/")
 def ver_reservas_view(request):
+    # Imprimir el contenido del request GET en la consola
+    print("Request GET data:", request.GET)
+
     query = Q()
     if 'rut_visita' in request.GET and request.GET['rut_visita']:
-        query &= Q(rut_visita=request.GET['rut_visita'])
+        query &= Q(rut_visita__icontains=request.GET['rut_visita'])
 
     if 'patente_vehiculo' in request.GET and request.GET['patente_vehiculo']:
-        query &= Q(patente_vehiculo=request.GET['patente_vehiculo'])
+        query &= Q(patente_vehiculo__icontains=request.GET['patente_vehiculo'])
+
+    if 'estado_estacionamiento' in request.GET and request.GET['estado_estacionamiento']:
+        query &= Q(estado_estacionamiento__icontains=request.GET['estado_estacionamiento'])
 
     reservas = ReservaEstacionamiento.objects.filter(query)
 
@@ -433,7 +439,7 @@ def ver_reservas_view(request):
         reservas_list.append({
             'id': reserva.id,
             'rut_visita': reserva.rut_visita,
-            'nombre_completo': f"{reserva.nombre_visita} {reserva.apellido_paterno_visita} {reserva.apellido_materno_visita}",
+            'nombre_completo': f"{reserva.nombre_visita} {reserva.apellido_paterno_visita}",
             'relacion_residente': reserva.relacion_residente,
             'patente_vehiculo': reserva.patente_vehiculo,
             'descripcion_vehiculo': reserva.descripcion_vehiculo,
@@ -443,10 +449,68 @@ def ver_reservas_view(request):
             'ubicacion_estacionamiento': ubicacion_estacionamiento,
             'fecha_llegada_visita': reserva.fecha_llegada_visita,
             'fecha_fin_visita': reserva.fecha_fin_visita
-
         })
 
-    return render(request, 'home/ver-reservas.html', {'reservasObj': reservas_list})
+    # Obtener los valores únicos del campo estado_estacionamiento
+    estados_estacionamiento = ReservaEstacionamiento.objects.values_list('estado_estacionamiento', flat=True).distinct()
+     
+    return render(request, 'home/ver-reservas.html', {
+        'reservasObj': reservas_list,
+        'estados_estacionamiento': estados_estacionamiento
+    })
+
+@login_required(login_url="/login/")
+def ver_reservas_view(request):
+    print('Request del get ::::::::: ', request.GET)
+    query = Q()
+    if 'rut_visita' in request.GET and request.GET['rut_visita']:
+        query &= Q(rut_visita=request.GET['rut_visita'])
+
+    if 'patente_vehiculo' in request.GET and request.GET['patente_vehiculo']:
+        query &= Q(patente_vehiculo=request.GET['patente_vehiculo'])
+
+    if 'estado_estacionamiento' in request.GET and request.GET['estado_estacionamiento']:
+        query &= Q(estado_estacionamiento=request.GET['estado_estacionamiento'])
+
+    reservas = ReservaEstacionamiento.objects.filter(query)
+
+    # Obtener los datos de las reservas, el número de estacionamiento, ubicación si existe
+    reservas_list = []
+    for reserva in reservas:
+        numero_estacionamiento = ''
+        ubicacion_estacionamiento = ''
+
+        if reserva.estacionamiento:
+            try:
+                estacionamiento = Estacionamiento.objects.get(id=reserva.estacionamiento)
+                numero_estacionamiento = estacionamiento.numero_estacionamiento.nombre
+                ubicacion_estacionamiento = estacionamiento.ubicacion.nombre
+            except Estacionamiento.DoesNotExist:
+                numero_estacionamiento = 'No aplica'
+                ubicacion_estacionamiento = 'No aplica 2'
+
+        reservas_list.append({
+            'id': reserva.id,
+            'rut_visita': reserva.rut_visita,
+            'nombre_completo': f"{reserva.nombre_visita} {reserva.apellido_paterno_visita}",
+            'relacion_residente': reserva.relacion_residente,
+            'patente_vehiculo': reserva.patente_vehiculo,
+            'descripcion_vehiculo': reserva.descripcion_vehiculo,
+            'numero_estacionamiento': numero_estacionamiento,
+            'fecha_registro_visita': reserva.fecha_registro_visita,
+            'estado_estacionamiento': reserva.estado_estacionamiento,
+            'ubicacion_estacionamiento': ubicacion_estacionamiento,
+            'fecha_llegada_visita': reserva.fecha_llegada_visita,
+            'fecha_fin_visita': reserva.fecha_fin_visita
+        })
+
+    # Obtener los valores únicos del campo estado_estacionamiento
+    estados_estacionamiento = ReservaEstacionamiento.objects.values_list('estado_estacionamiento', flat=True).distinct()
+
+    return render(request, 'home/ver-reservas.html', {
+        'reservasObj': reservas_list,
+        'estados_estacionamiento': estados_estacionamiento
+    })
 
 @login_required(login_url="/login/")
 def crear_reserva_view(request):
@@ -533,6 +597,7 @@ def crear_reserva_view(request):
                 else:
                     reserva.patente_vehiculo = ' '
 
+                #reserva.fecha_registro_visita = timezone.now()
                 reserva.save()  # Guarda la reserva
 
                 # Actualizar el estado del estacionamiento a reservado
@@ -794,6 +859,62 @@ def eliminar_reserva_view(request, id):
     
     messages.success(request, 'La reserva ha sido eliminada exitosamente.')
     return redirect('ver_reservas')
+
+
+@login_required(login_url="/login/")
+def exportar_reservas_pdf(request):
+    # Construcción del filtro para reservas
+    query = Q()
+    if 'rut_visita' in request.GET and request.GET['rut_visita']:
+        query &= Q(rut_visita=request.GET['rut_visita'])
+
+    if 'patente_vehiculo' in request.GET and request.GET['patente_vehiculo']:
+        query &= Q(patente_vehiculo=request.GET['patente_vehiculo'])
+
+    reservas = ReservaEstacionamiento.objects.filter(query)
+
+    # Obtener los datos de las reservas con número y ubicación del estacionamiento
+    reservas_list = []
+    for reserva in reservas:
+        numero_estacionamiento = ''
+        ubicacion_estacionamiento = ''
+
+        if reserva.estacionamiento:
+            try:
+                estacionamiento = Estacionamiento.objects.get(id=reserva.estacionamiento)
+                numero_estacionamiento = estacionamiento.numero_estacionamiento.nombre
+                ubicacion_estacionamiento = estacionamiento.ubicacion.nombre
+            except Estacionamiento.DoesNotExist:
+                numero_estacionamiento = 'No aplica'
+                ubicacion_estacionamiento = 'No aplica'
+
+        reservas_list.append({
+            'id': reserva.id,
+            'rut_visita': reserva.rut_visita,
+            'nombre_completo': f"{reserva.nombre_visita} {reserva.apellido_paterno_visita}",
+            'relacion_residente': reserva.relacion_residente,
+            'patente_vehiculo': reserva.patente_vehiculo,
+            'descripcion_vehiculo': reserva.descripcion_vehiculo,
+            'numero_estacionamiento': numero_estacionamiento,
+            'fecha_registro_visita': reserva.fecha_registro_visita,
+            'estado_estacionamiento': reserva.estado_estacionamiento,
+            'ubicacion_estacionamiento': ubicacion_estacionamiento,
+            'fecha_llegada_visita': reserva.fecha_llegada_visita,
+            'fecha_fin_visita': reserva.fecha_fin_visita,
+        })
+
+    # Renderizar la plantilla para generar el PDF
+    html_string = render_to_string('home/pdf-reservas.html', {'reservas': reservas_list})
+
+    # Generar el PDF
+    base_url = request.build_absolute_uri('/')
+    html = HTML(string=html_string, base_url=base_url)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=reservas.pdf'
+    html.write_pdf(response)
+
+    return response
+
 
 # ----------------- RUTAS PARA IR A LAS PAGINAS  DE OBSERVACIONES ---------------------------
 

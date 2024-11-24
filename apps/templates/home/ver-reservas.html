@@ -19,8 +19,8 @@
         <div class="custom-card-body">
           <div class="row">
             <div class="col-md-12 d-flex justify-content-start" style="margin-bottom: -0.8rem;">
-              <a class="btn btn-custom me-2" href="{% url 'crear_reserva' %}">Nueva Reserva</a>
-              <a class="btn btn-pdf" href="#"><i class="fas fa-download"></i> PDF</a>
+              <a class="btn btn-custom me-2" href="{% url 'crear_reserva' %}">Nueva Reserva</a>              
+              <a class="btn btn-pdf" href="{% url 'exportar_reservas_pdf' %}" target="_blank"><i class="fas fa-download"></i> PDF</a>
             </div>
           </div>
           <div class="row">
@@ -29,21 +29,29 @@
                 <div class="custom-card-header">
                   <h6>Filtros</h6>
                 </div>
-                <div class="custom-card-body">
-                  <form method="GET" action="{% url 'ver_reservas' %}">
-                    <div class="row align-items-center">
-                      <div class="col-md-3">
-                        <input type="text" name="rut_visita" class="form-control" placeholder="Buscar por RUT Visita" value="{{ request.GET.rut_visita }}">
-                      </div>
-                      <div class="col-md-3">
-                        <input type="text" name="patente_vehiculo" class="form-control" placeholder="Buscar por Patente" value="{{ request.GET.patente_vehiculo }}">
-                      </div>
-                      <div class="col-md-6 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary me-2"><i class="fas fa-search"></i> Buscar</button>
-                        <a href="{% url 'ver_reservas' %}" class="btn btn-secondary"><i class="fas fa-eraser"></i> Limpiar</a>
-                      </div>
-                    </div>
-                  </form>
+                  <div class="custom-card-body">
+                    <form method="GET" action="{% url 'ver_reservas' %}">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <input type="text" name="rut_visita" class="form-control" placeholder="Buscar por RUT Visita" value="{{ request.GET.rut_visita }}">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" name="patente_vehiculo" class="form-control" placeholder="Buscar por Patente" value="{{ request.GET.patente_vehiculo }}">
+                            </div>
+                            <div class="col-md-3">
+                                <select name="estado_estacionamiento" class="form-control">
+                                    <option value="">Seleccione Estado</option>
+                                    {% for estado in estados_estacionamiento %}
+                                        <option value="{{ estado }}" {% if request.GET.estado_estacionamiento == estado %}selected{% endif %}>{{ estado }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary me-2"><i class="fas fa-search"></i> Buscar</button>
+                                <a href="{% url 'ver_reservas' %}" class="btn btn-secondary"><i class="fas fa-eraser"></i> Limpiar</a>
+                            </div>
+                        </div>
+                    </form>
                 </div>
               </div>
             </div>
@@ -53,11 +61,13 @@
             <table class="table align-items-center mb-0">
               <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">RUT Visita</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nombre Visita</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">RUT</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nombre</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Patente</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Ubicación</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">N° Est.</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Fecha LLegada</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Fecha Salida</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Estado</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Acción</th>
                 </tr>
@@ -86,6 +96,12 @@
                     <p class="text-sm text-secondary mb-0">{{ reserva.numero_estacionamiento }}</p>
                   </td>
                   <td>
+                    <p class="text-sm text-secondary mb-0">{{ reserva.fecha_llegada_visita|date:"Y-m-d H:i:s"  }}</p>
+                  </td>
+                  <td>
+                    <p class="text-sm text-secondary mb-0">{{ reserva.fecha_fin_visita|date:"Y-m-d H:i:s"  }}</p>
+                  </td>
+                  <td>
                     <p class="text-xs text-secondary mb-0"><strong>{{ reserva.estado_estacionamiento }}</strong></p>
                   </td>
                   
@@ -100,7 +116,7 @@
                           <button class="btn btn-warning btn-sm" disabled style="font-weight: 100;" title="Modificar">
                               <i class="fas fa-edit"></i>
                           </button>            
-                          <a href="#" class="btn btn-primary btn-sm" style="font-weight: 100;" title="Finalizar" onclick="confirmDelete('{% url 'finalizar_reserva' reserva.id %}')">
+                          <a href="#" class="btn btn-primary btn-sm" style="font-weight: 100;" title="Finalizar Reserva" onclick="confirmDelete('{% url 'finalizar_reserva' reserva.id %}')">
                             <i class="fas fa-flag-checkered"></i>
                           </a>
 
@@ -184,9 +200,9 @@
                       <a class="btn btn-info btn-sm" style="font-weight: 100;" title="Ver Detalle" href="{% url 'detalle_reserva' reserva.id %}">
                           <i class="fas fa-info-circle"></i>
                       </a>
-                      <a href="#" class="btn btn-danger btn-sm" style="font-weight: 100;" title="Eliminar" onclick="confirmDelete('{% url 'eliminar_reserva' reserva.id %}')">
+                      <!-- <a href="#" class="btn btn-danger btn-sm" style="font-weight: 100;" title="Eliminar" onclick="confirmDelete('{% url 'eliminar_reserva' reserva.id %}')">
                         <i class="fas fa-trash"></i>
-                    </a>
+                    </a> -->
                   {% else %}
                       <span>No disponible</span>
                   {% endif %}
