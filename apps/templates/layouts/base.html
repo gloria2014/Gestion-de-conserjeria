@@ -113,15 +113,15 @@
       
    
        // Función genérica para mostrar el modal de confirmación
-    window.confirmDelete = function(url, mensaje) {
+    window.confirmDelete = function(url) {
       Swal.fire({
         title: '¿Estás seguro?',
-        text: mensaje,
+        text: "¡No podrás revertir esto!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, finalizar',
+        confirmButtonText: 'Sí',
         cancelButtonText: 'Cancelar'
       }).then((result) => {
         if (result.isConfirmed) {
@@ -130,10 +130,10 @@
       })
     }
     
-    window.confirmAction = function(url, mensaje) {
+    window.confirmAction = function(url) {
     Swal.fire({
       title: '¿Estás seguro?',
-      text: mensaje,
+      text: "¡No podrás revertir esto!",
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
