@@ -10,14 +10,15 @@
   <div class="row">
     <div class="col-12">
       <div class="custom-card">
-        <div class="custom-card-header d-flex justify-content-between align-items-center">
-          <h4>Reserva de Estacionamientos</h4>
+        
+        <div class="text-center custom-card-header">
+          <h6>VISITAS Y RESERVAS ESTACIONAMIENTO</h6>
         </div>
 
         <!-- Card para el formulario de búsqueda -->
         <div class="custom-card-body">
           <div class="row">
-            <div class="col-md-12 d-flex justify-content-start">
+            <div class="col-md-12 d-flex justify-content-start" style="margin-bottom: -0.8rem;">
               <a class="btn btn-custom me-2" href="{% url 'crear_reserva' %}">Nueva Reserva</a>
               <a class="btn btn-pdf" href="#"><i class="fas fa-download"></i> PDF</a>
             </div>
@@ -53,9 +54,10 @@
               <thead>
                 <tr>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">RUT Visita</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nombre Completo</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Patente Vehículo</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Fecha Registro</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nombre Visita</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Patente</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Ubicación</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">N° Est.</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Estado</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Acción</th>
                 </tr>
@@ -66,42 +68,129 @@
                   <td>
                     <div class="d-flex px-2 py-1">
                       <div class="d-flex flex-column justify-content-center">
-                        <p class="text-xs text-secondary mb-0">{{ reserva.rut_visita }}</p>
+                        <p class="text-sm text-secondary mb-0">{{ reserva.rut_visita }}</p>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <p class="text-xs text-secondary mb-0">{{ reserva.nombre_completo }}</p>
+                    <p class="text-sm text-secondary mb-0">{{ reserva.nombre_completo }}</p>
                   </td>
                   
                   <td>
-                    <p class="text-xs text-secondary mb-0">{{ reserva.patente_vehiculo }}</p>
+                    <p class="text-sm text-secondary mb-0">{{ reserva.patente_vehiculo }}</p>
                   </td>
                   <td>
-                    <p class="text-xs text-secondary mb-0">{{ reserva.fecha_registro_visita }}</p>
+                    <p class="text-sm text-secondary mb-0">{{ reserva.ubicacion_estacionamiento }}</p>
                   </td>
                   <td>
-                    <p class="text-xs text-secondary mb-0">{{ reserva.estado_estacionamiento }}</p>
+                    <p class="text-sm text-secondary mb-0">{{ reserva.numero_estacionamiento }}</p>
                   </td>
-                  <td class="align-middle text-center">
-                    <input type="hidden" name="id" value="{{ reserva.id }}">
-                    
-                    {% if reserva.id %}
-                    {% if reserva.estado_estacionamiento == 'Ocupado' %}
-                      <button class="btn btn-success btn-sm" disabled>Confirmado</button>
-                      <button class="btn btn-info btn-info" disabled>Modificar</button>
-                    {% else %}
-                      <a href="#" class="btn btn-success btn-sm" onclick="confirmAction('{% url 'confirmar_reserva' reserva.id %}', 'Confirmar la Reserva')">Confirmar</a>
-                      <a class="btn btn-info btn-info" href="{% url 'editar_reserva' reserva.id %}">Modificar</a>   
-                      {% endif %}
+                  <td>
+                    <p class="text-xs text-secondary mb-0"><strong>{{ reserva.estado_estacionamiento }}</strong></p>
+                  </td>
+                  
+                <td class="align-middle text-center">
+                  <input type="hidden" name="id" value="{{ reserva.id }}">
+                  
+                  {% if reserva.id %}
+                      {% if reserva.estado_estacionamiento == 'Ocupado' %}
+                          <button class="btn btn-success btn-sm" disabled style="font-weight: 100;" title="Confirmado">
+                              <i class="fas fa-check"></i>
+                          </button>
+                          <button class="btn btn-warning btn-sm" disabled style="font-weight: 100;" title="Modificar">
+                              <i class="fas fa-edit"></i>
+                          </button>            
+                          <a href="#" class="btn btn-primary btn-sm" style="font-weight: 100;" title="Finalizar" onclick="confirmDelete('{% url 'finalizar_reserva' reserva.id %}')">
+                            <i class="fas fa-flag-checkered"></i>
+                          </a>
 
-                    <a class="btn btn-custom" href="{% url 'detalle_reserva' reserva.id %}">Ver Detalle</a>                        
-                    <a href="#" class="btn btn-danger btn-sm" onclick="confirmDelete('{% url 'eliminar_reserva' reserva.id %}', 'Finalizar la Reserva')">Finalizar</a>                
-                    {% else %}
-                          <span>No disponible</span>
+                      {% elif reserva.estado_estacionamiento == 'Finalizado' %}
+                          <button class="btn btn-success btn-sm" style="font-weight: 100;" disabled title="Confirmado">
+                              <i class="fas fa-check"></i>
+                          </button>
+                          <button class="btn btn-warning btn-sm" style="font-weight: 100;" disabled title="Modificar">
+                              <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-primary btn-sm" disabled style="font-weight: 100;" title="Finalizar">
+                            <strong><i class="fas fa-flag-checkered"></i></strong>
+                        </button>
+
+                      <!-- CUANDO EL REGISTRO ES DE UNA VISITA SIN ESTACIONAMIENTO -->
+                      {% elif reserva.estado_estacionamiento == 'Sin estacionamiento' %}
+
+                          {% if reserva.fecha_llegada_visita is None or reserva.fecha_llegada_visita == "" %}
+                            <!-- Botón "Confirmar Visita" habilitado -->
+                            <a href="#" 
+                              class="btn btn-success btn-sm" 
+                              style="font-weight: 100;" 
+                              title="Confirmar Visita" 
+                              onclick="confirmAction('{% url 'confirmar_reserva_visita' reserva.id %}')">
+                              <i class="fas fa-check"></i>
+                            </a>
+                            <!-- Botón "Finalizar Visita" deshabilitado -->
+                            <button class="btn btn-primary btn-sm" 
+                                    disabled 
+                                    style="font-weight: 100;" 
+                                    title="Finalizar Visita">
+                              <i class="fas fa-flag-checkered"></i>
+                            </button>
+
+                          {% elif reserva.fecha_llegada_visita and reserva.fecha_fin_visita %}
+                            <!-- Ambos botones deshabilitados cuando la visita ya fue finalizada -->
+                            <button class="btn btn-success btn-sm" 
+                                    style="font-weight: 100;" 
+                                    disabled 
+                                    title="Confirmado">
+                              <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-primary btn-sm" 
+                                    disabled 
+                                    style="font-weight: 100;" 
+                                    title="Visita Finalizada">
+                              <i class="fas fa-flag-checkered"></i>
+                            </button>
+
+                          {% else %}
+                            <!-- Botón "Confirmar" deshabilitado y "Finalizar Visita" habilitado -->
+                            <button class="btn btn-success btn-sm" 
+                                    style="font-weight: 100;" 
+                                    disabled 
+                                    title="Confirmado">
+                              <i class="fas fa-check"></i>
+                            </button>
+                            <a href="#" 
+                              class="btn btn-primary btn-sm" 
+                              style="font-weight: 100;" 
+                              title="Finalizar Visita" 
+                              onclick="confirmDelete('{% url 'finalizar_reserva_visita' reserva.id %}')">
+                              <i class="fas fa-flag-checkered"></i>
+                            </a>
+                          {% endif %}
+
+
+
+                      {% else %}
+                          <a href="#" class="btn btn-success btn-sm" style="font-weight: 100;" title="Confirmar Reserva" onclick="confirmAction('{% url 'confirmar_reserva' reserva.id %}')">
+                              <i class="fas fa-check"></i>
+                          </a>
+                          <a class="btn btn-warning btn-sm" style="font-weight: 100;" title="Modificar" href="{% url 'editar_reserva' reserva.id %}">
+                              <i class="fas fa-edit"></i>
+                          </a>
+                          <a href="#" class="btn btn-primary btn-sm" style="font-weight: 100;" title="Finalizar Reserva" onclick="confirmDelete('{% url 'finalizar_reserva' reserva.id %}')">
+                            <i class="fas fa-flag-checkered"></i>
+                         </a>
+                         
                       {% endif %}
-                   </td>
-                 
+                      <a class="btn btn-info btn-sm" style="font-weight: 100;" title="Ver Detalle" href="{% url 'detalle_reserva' reserva.id %}">
+                          <i class="fas fa-info-circle"></i>
+                      </a>
+                      <a href="#" class="btn btn-danger btn-sm" style="font-weight: 100;" title="Eliminar" onclick="confirmDelete('{% url 'eliminar_reserva' reserva.id %}')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                  {% else %}
+                      <span>No disponible</span>
+                  {% endif %}
+              </td>
                 </tr>
                 {% endfor %}
               </tbody>

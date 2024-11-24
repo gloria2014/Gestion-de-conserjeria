@@ -65,45 +65,45 @@
                 <div class="accordion-body">
                     <div class="row">
                         <div class="col-md-6">
-                        <div class="form-group mb-4">
+                        <div class="form-group">
                             <label for="{{ formulario.rut_visita.id_for_label }}" class="form-label">{{ formulario.rut_visita.label }}</label>
                             {{ formulario.rut_visita }}
                         </div>
                         
                         </div>
                         <div class="col-md-6">
-                        <div class="form-group mb-4">
+                        <div class="form-group">
                             <label for="{{ formulario.nombre_visita.id_for_label }}" class="form-label">{{ formulario.nombre_visita.label }}</label>
                             {{ formulario.nombre_visita }}
                         </div>
                         
                         </div>
                         <div class="col-md-6">
-                        <div class="form-group mb-4">
+                        <div class="form-group">
                             <label for="{{ formulario.apellido_paterno_visita.id_for_label }}" class="form-label">{{ formulario.apellido_paterno_visita.label }}</label>
                             {{ formulario.apellido_paterno_visita }}
                         </div>        
                         </div>
                         <div class="col-md-6">
-                        <div class="form-group mb-4">
+                        <div class="form-group">
                             <label for="{{ formulario.apellido_materno_visita.id_for_label }}" class="form-label">{{ formulario.apellido_materno_visita.label }}</label>
                             {{ formulario.apellido_materno_visita }}
                         </div>
                         </div>
                         <div class="col-md-6">
-                        <div class="form-group mb-4">
+                        <div class="form-group">
                             <label for="{{ formulario.telefono_visita.id_for_label }}" class="form-label">{{ formulario.telefono_visita.label }}</label>
                             {{ formulario.telefono_visita }}
                         </div>
                         </div>
                         <div class="col-md-6">
-                        <div class="form-group mb-4">
+                        <div class="form-group">
                             <label for="{{ formulario.relacion_residente.id_for_label }}" class="form-label">{{ formulario.relacion_residente.label }}</label>
                             {{ formulario.relacion_residente }}
                         </div>
                         </div>
                         <div class="col-md-6 d-none">
-                        <div class="form-group mb-4">
+                        <div class="form-group">
                             <label for="{{ formulario.residente.id_for_label }}" class="form-label">{{ formulario.residente.label }}</label>
                             {{ formulario.residente }}
                         </div>
@@ -125,9 +125,9 @@
                 <div class="accordion-body">
                     <div class="row">
                         {% for campo in formulario %}
-                            {% if campo.name in 'patente_vehiculo descripcion_vehiculo fecha_llegada_visita fecha_llegada_visita_confirmada  tiempo_permanencia' %}
+                            {% if campo.name in 'patente_vehiculo descripcion_vehiculo fecha_llegada_visita fecha_fin_visita fecha_llegada_visita_confirmada tiempo_permanencia' %}
                             <div class="col-md-6">
-                                <div class="form-group mb-4">
+                                <div class="form-group">
                                 <label for="{{ campo.id_for_label }}" class="form-label">{{ campo.label }}</label>
                                 {{ campo }}
                                 </div>
@@ -137,7 +137,7 @@
                         {% endfor %}
                          <!-- Campo Número Estacionamiento -->
                          <div class="col-md-6">
-                            <div class="form-group mb-4">
+                            <div class="form-group">
                                 <label for="numero_estacionamiento" class="form-label">Número Estacionamiento</label>
                                 <input type="text" id="numero_estacionamiento" name="numero_estacionamiento" 
                                 class="form-control" value="{{ numero_estacionamiento }}" readonly >
@@ -145,7 +145,7 @@
                         </div>
                         <!-- Campo Ubicación Estacionamiento -->
                         <div class="col-md-6">
-                            <div class="form-group mb-4">
+                            <div class="form-group">
                                 <label for="ubicacion_estacionamiento" class="form-label">Ubicación Estacionamiento</label>
                                 <input type="text" id="ubicacion_estacionamiento" name="ubicacion_estacionamiento"
                                  value="{{ ubicacion_estacionamiento }}" class="form-control" readonly>

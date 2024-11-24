@@ -461,7 +461,8 @@ class ReservaEstacionamientoEditForm(forms.ModelForm):
             'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia'}),
-            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_registra_visita'}),
+            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_registra_visita'})
+            
        }
 
     def __init__(self, *args, **kwargs):
@@ -530,7 +531,8 @@ class ReservaEstacionamientoVerDetalleForm(forms.ModelForm):
             'patente_vehiculo',
             'descripcion_vehiculo',
             'tiempo_permanencia',
-            'fecha_llegada_visita'
+            'fecha_llegada_visita',
+            'fecha_fin_visita',
             
         ]
         widgets = {
@@ -547,6 +549,7 @@ class ReservaEstacionamientoVerDetalleForm(forms.ModelForm):
             'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia', 'readonly': 'readonly'}), 
             'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_registra_visita', 'readonly': 'readonly'}),
+            'fecha_fin_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
        }
 
     def __init__(self, *args, **kwargs):

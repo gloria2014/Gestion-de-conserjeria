@@ -130,8 +130,9 @@ class ReservaEstacionamiento(models.Model):
     fecha_registro_visita = models.DateTimeField(auto_now_add=True)
     fecha_llegada_visita = models.DateTimeField(null=True, blank=True)
     fecha_llegada_visita_confirmada = models.DateTimeField(null=True, blank=True)
+    fecha_fin_visita = models.DateTimeField(null=True, blank=True)
     fecha_modifica_reserva = models.DateTimeField(null=True, blank=True)
-    estado_estacionamiento = models.CharField(max_length=10, null=True, blank=True)
+    estado_estacionamiento = models.CharField(max_length=25, null=True, blank=True)
     id_residente2 = models.IntegerField(null=True, blank=True) # trae el id del residente
 
     def __str__(self):

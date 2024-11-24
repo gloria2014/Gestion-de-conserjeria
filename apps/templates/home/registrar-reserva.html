@@ -89,18 +89,15 @@
     // CARGA LOS ESTACIONAMIENTOS EN EL MODAL
 document.addEventListener('DOMContentLoaded', function() 
 {
-    alert("hola");
     const estacionamientosBody = document.getElementById('estacionamientos-body');
     const formulario = document.getElementById('editarReservaEstacionamientoForm');
     const estacionamientoInput = document.getElementById('estacionamiento');
    
     async function cargarEstacionamientos() {
-        alert("entre  2");
         fetch('/estacionamientos-disponibles/')
         .then(response => response.json())
         .then(data => {
             if (data.estacionamientos) {
-                alert("entre");
                 const tableBody = document.getElementById('estacionamientos-body');
                 tableBody.innerHTML = ''; // Limpiar el contenido anterior
 
@@ -124,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function()
         })
         .catch(error => {
             console.error('Error al cargar estacionamientos:', error);
-            alert('Ocurrió un error al cargar los datos.');
+            
         });
     }
 
@@ -134,11 +131,17 @@ document.addEventListener('DOMContentLoaded', function()
 });
 
     document.addEventListener('submit', function(event) {
-        const llaveEstacionamiento = document.getElementById('llave_estacionamiento').value;
+        // const llaveEstacionamiento = document.getElementById('llave_estacionamiento').value;
 
-        if (!estacionamientoInput.value) {
-            estacionamientoInput.value = llaveEstacionamiento;
+        const llaveEstacionamientoInput = document.getElementById('llave_estacionamiento');
+    
+        if (!llaveEstacionamientoInput) {
+            console.error("El elemento con ID 'llave_estacionamiento' no existe.");
+            return; // Detener el flujo si el elemento no existe
         }
+
+        const llaveEstacionamiento = llaveEstacionamientoInput.value;
+        estacionamientoInput.value = llaveEstacionamiento;
     });
 
     function seleccionarEstacionamiento(id, numero, ubicacion) {
@@ -163,7 +166,12 @@ document.addEventListener('DOMContentLoaded', function()
                 document.getElementById('propiedad').value = data.id;
                 document.getElementById('numero_propiedad_label').textContent = data.numero_propiedad;
                 document.getElementById('piso_propiedad').textContent = data.piso;
-                document.getElementById('estado_propiedad').textContent = data.estado;
+                //document.getElementById('estado_propiedad').textContent = data.estado;
+
+                const estadoPropiedad = document.getElementById('estado_propiedad');
+                if (estadoPropiedad) {
+                    estadoPropiedad.textContent = data.estado;
+                }
             } else {
                 alert(data.error);
             }
@@ -216,10 +224,7 @@ document.addEventListener('DOMContentLoaded', function()
         }
     });
 
-    // ACA ME QUEDE, al guardar SIN SELECCIONAR ESTACIONAMIENTO?  EL ID DEL ESATCIOANMIENTO SE PIERDE Y NO PASA AÑ POST
-    // GLORIA
-
-
+  
   
     function actualizarDatosResidente(residenteId) {
         if (residenteId) {
