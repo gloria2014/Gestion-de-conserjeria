@@ -46,6 +46,7 @@ urlpatterns = [
     path('finalizar-reserva/<int:id>', views.finalizar_reserva_view, name='finalizar_reserva'),
     path('finalizar-reserva-visita/<int:id>', views.finalizar_reserva_visita_view, name='finalizar_reserva_visita'),
     path('eliminar-reserva/<int:id>', views.eliminar_reserva_view, name='eliminar_reserva'),
+    path('reservas-pdf/', views.exportar_reservas_pdf, name='exportar_reservas_pdf'),
 
     path('buscar-residentes/', buscar_residentes, name='buscar_residentes'),  
     path('obtener-datos-residente/', obtener_datos_residente, name='obtener_datos_residente'),

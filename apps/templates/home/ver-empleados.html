@@ -11,18 +11,19 @@
   <div class="row">
     <div class="col-12">
       <div class="custom-card">
-        <div class="custom-card-header d-flex justify-content-between align-items-center">
-          <h4>Empleados</h4>
+        <div class="custom-card-header w-100 text-center">
+          <h6>REGISTRO DE EMPLEADOS</h6>
         </div>
 
         <!-- Card para el formulario de búsqueda -->
         <div class="custom-card-body">
-          <div class="row mb-3">
-            <div class="col-md-12 d-flex justify-content-start" style="margin-bottom: -2rem;">
-              <a class="btn btn-custom me-2" href="{% url 'crear_conserje' %}">Nuevo</a>
-              <a class="btn btn-custom" href="{% url 'exportar_empleados_pdf' %}" target="_blank"><i class="fas fa-download"></i> PDF</a>
+          <div class="row">           
+            <div class="col-md-12 d-flex justify-content-start" style="margin-bottom: -0.8rem;">
+              <a class="btn btn-custom me-2" href="{% url 'crear_conserje' %}">Nuevo</a>              
+              <a class="btn btn-pdf" href="{% url 'exportar_empleados_pdf' %}" target="_blank"><i class="fas fa-download"></i> PDF</a>
             </div>
           </div>
+        
           <div class="row">
             <div class="col-md-12">
               <div class="custom-card">
@@ -89,8 +90,13 @@
                   </td>
                   <td class="align-middle">
                     <input type="hidden" name="id" value="{{ item.id }}">
-                    <a class="btn btn-info btn-sm" href="{% url 'editar_conserje' item.id %}">Editar</a>
-                    <a href="#" class="btn btn-danger btn-sm" onclick="confirmDelete('{% url 'eliminar_conserje' item.id %}')">Eliminar</a>
+                   
+                    <a class="btn btn-warning btn-sm" style="font-weight: 100;" title="Modificar Empleado" href="{% url 'editar_conserje' item.id %}">
+                      <i class="fas fa-edit"></i>
+                  </a>
+                    <a href="#" class="btn btn-danger btn-sm" style="font-weight: 100;" title="Eliminar Empleado" onclick="confirmDelete('{% url 'eliminar_conserje' item.id %}')">
+                      <i class="fas fa-trash"></i>
+                  </a>
                   </td>
                 </tr>
                 {% endfor %}

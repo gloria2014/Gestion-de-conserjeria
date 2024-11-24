@@ -7,8 +7,12 @@
 {% block content %}
 <div class="container-fluid py-4">
     <div class="custom-card mb-4">
-        <div class="text-center custom-card-header">
-            <h6>NUEVA RESERVA</h6>
+        
+        <div class="d-flex justify-content-between align-items-center custom-card-header">
+            <a href="{% url 'ver_reservas' %}" class="btn-icon-only" title="Volver">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h6 class="text-center w-100">NUEVA RESERVA</h6>
         </div>
         <div class="custom-card-body">
             {% include "home/form-reserva-nueva.html" %}
@@ -22,10 +26,8 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="residentesModalLabel">Seleccionar Residente</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h6 class="w-100 text-center" id="residentesModalLabel">SELECCIONAR RESIDENTE</h6>
+                
             </div>
             <div class="modal-body">
                 <select id="residentesDropdown" class="form-control">
@@ -34,7 +36,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="seleccionarResidenteBtn">Seleccionar</button>
+                <button type="button" class="btn btn-primary" id="seleccionarResidenteBtn">Aceptar</button>
             </div>
         </div>
     </div>
@@ -63,8 +65,12 @@
   <style>
     .flatpickr-calendar {
       max-width: 12rem !important; 
-      left: 834.469px !important
+      left: 834.469px !important;
+      
     }
+    .datepicker-dropdown {
+            background-color: #f4dfdf; 
+        }
   </style>
 
 <script>

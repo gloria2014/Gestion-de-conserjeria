@@ -8,18 +8,18 @@
   <div class="row">
     <div class="col-12">
       <div class="custom-card">
-        <div class="custom-card-header d-flex justify-content-between align-items-center">
-          <h4>Listado de Estacionamientos</h4>
+        <div class="custom-card-header w-100 text-center">
+          <h6>ESTACIONAMIENTOS REGISTRADOS</h6>
         </div>
 
         <!-- Card para el formulario de búsqueda -->
         <div class="custom-card-body">
-          <div class="row mb-3">
+          <!-- <div class="row">
             <div class="col-md-12 d-flex justify-content-start" style="margin-bottom: -2rem;">
               <a class="btn btn-custom me-2" href="{% url 'crear_estacionamiento' %}">Nuevo</a>
-              <!-- <a class="btn btn-custom" href="{% url 'exportar_empleados_pdf' %}" target="_blank"><i class="fas fa-download"></i> PDF</a> -->
+              
             </div>
-          </div>
+          </div> -->
           <div class="row">
             <div class="col-md-12">
               <div class="custom-card">
@@ -70,7 +70,7 @@
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Ubicación</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tipo</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Estado</th>
-                  <th class="text-secondary opacity-7">Acción</th>
+                  <!-- <th class="text-secondary opacity-7">Acción</th> -->
                 </tr>
               </thead>
               <tbody>
@@ -92,10 +92,10 @@
                   <td>
                     <p class="text-xs text-secondary mb-0">{{ item.estado_estacionamiento.nombre }}</p>
                   </td>
-                  <td class="align-middle">
+                  <!-- <td class="align-middle">
                     <input type="hidden" name="id" value="{{ item.id }}">
                     <a class="btn btn-info btn-sm" href="{% url 'editar_estacionamiento' item.id %}">Editar</a>
-                  </td>
+                  </td> -->
                 </tr>
                 {% endfor %}
               </tbody>

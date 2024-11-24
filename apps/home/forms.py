@@ -302,7 +302,6 @@ class EstacionamientoForm(forms.ModelForm):
         model = Estacionamiento
         fields = ['numero_estacionamiento', 'ubicacion', 'tipo_estacionamiento', 'estado_estacionamiento']
 
-
 class ReservaEstacionamientoForm(forms.ModelForm):
     numero_propiedad = forms.CharField(
         max_length=5,
@@ -361,8 +360,9 @@ class ReservaEstacionamientoForm(forms.ModelForm):
             'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia'}),
-            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_registra_visita'}),
+            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_llegada_visita'}),
             'id_residente2': forms.HiddenInput(attrs={'id': 'id_residente2'}),
+            
         }
 
     def __init__(self, *args, **kwargs):
@@ -384,7 +384,13 @@ class ReservaEstacionamientoForm(forms.ModelForm):
         elif self.instance.pk:
             self.fields['residente'].queryset = self.instance.propiedad.residentes_set.all()
 
-     
+    def clean_fecha_llegada_visita(self):
+        fecha_llegada_visita = self.cleaned_data['fecha_llegada_visita']
+        if fecha_llegada_visita:
+            # Formatear la fecha en el formato deseado
+            fecha_llegada_visita = fecha_llegada_visita.strftime('%Y-%m-%d %H:%M:%S')
+        return fecha_llegada_visita
+
     def clean(self):
         cleaned_data = super().clean()
         id_residente2 = cleaned_data.get('id_residente2')
@@ -399,9 +405,6 @@ class ReservaEstacionamientoForm(forms.ModelForm):
                 self.add_error('id_residente2', "El ID del residente no es válido.")
 
         return cleaned_data
-   
-from django import forms
-from .models import ReservaEstacionamiento, Propiedad, Residentes
 
 class ReservaEstacionamientoEditForm(forms.ModelForm):
     numero_propiedad = forms.CharField(
@@ -461,7 +464,7 @@ class ReservaEstacionamientoEditForm(forms.ModelForm):
             'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia'}),
-            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_registra_visita'})
+            'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_llegada_visita'})
             
        }
 

@@ -104,6 +104,7 @@ h5 {
 
 .form-group label {
   font-weight: 600;
+  font-size: small;
 }
 .help-text {
   color: #e74c3c;
@@ -164,7 +165,7 @@ h5 {
   border-radius: 0 0 0.5rem 0.5rem;
 }
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: -0.2rem;
 }
 
 
@@ -173,6 +174,17 @@ h5 {
     background-color: #f1f1f1; /* Color de fondo al pasar el cursor */
     cursor: pointer; /* Cambiar el cursor a una mano */
   }
+
+  /* Estilo para la accion Volver de los formularios */
+  .btn-icon-only {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+}
+.btn-icon-only i {
+    color: #007bff; /* Puedes ajustar el color de la flecha aquí */
+    font-size: 2rem; /* Ajusta el tamaño del ícono si es necesario */
+}
 
 
   
