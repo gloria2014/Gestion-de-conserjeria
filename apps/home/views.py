@@ -514,9 +514,8 @@ def ver_reservas_view(request):
 
 @login_required(login_url="/login/")
 def crear_reserva_view(request):
-    id_residente2 = request.POST.get('id_residente2')
-    print("ID del residente recibido:", id_residente2)
     msg = None
+
     # Obtenemos el formulario con los datos POST si están presentes
     empleado_id = request.session.get('empleado_id')
     initial_data = {'empleado_id': empleado_id}
@@ -574,50 +573,58 @@ def crear_reserva_view(request):
             })
 
         elif request.method == 'POST':
-            id_residente2 = request.POST.get('id_residente2')
-            print("ID del residente recibido:", id_residente2)
-            print(" 3 rquest post ::::::::::::::: ", request.POST)
+
+            id_residente2 = request.POST.get('id_residente2', '').strip()
+            if not id_residente2:
+                msg = "El ID del residente no puede estar vacío. xxxxxx"
+                print("Error: El ID del residente no está presente.")
+
+            if not msg:
+                formulario = ReservaEstacionamientoForm(request.POST or None)
           
-            # Valida y guarda el formulario si es válido
-            if formulario.is_valid():
-                reserva = formulario.save(commit=False)
+                if formulario.is_valid():
+                    reserva = formulario.save(commit=False)
 
-                # Asigna el ID del empleado logueado
-                reserva.empleado_id = empleado_id
-                reserva.id_residente2 = id_residente2
+                    # Asigna el ID del empleado logueado
+                    reserva.empleado_id = empleado_id
+                    reserva.id_residente2 = id_residente2
 
-                #Si el registro es de visita, no se asigna estacionamiento
-                if reserva.estacionamiento:
-                    reserva.estado_estacionamiento = 'Reservado'
+                    #Si el registro es de visita, no se asigna estacionamiento
+                    if reserva.estacionamiento:
+                        reserva.estado_estacionamiento = 'Reservado'
+                    else:
+                        reserva.estado_estacionamiento = 'Sin estacionamiento'
+
+                    if reserva.patente_vehiculo:
+                        reserva.patente_vehiculo = reserva.patente_vehiculo.upper()
+                    else:
+                        reserva.patente_vehiculo = ' '
+
+                    #reserva.fecha_registro_visita = timezone.now()
+                    reserva.save()  # Guarda la reserva
+
+                    # Actualizar el estado del estacionamiento a reservado
+                    if reserva.estacionamiento:
+                        estacionamiento = get_object_or_404(Estacionamiento, id=reserva.estacionamiento)
+                        estacionamiento.estado_estacionamiento = EstadoEstacionamiento.objects.get(id=3)  # Estado reservado
+                        estacionamiento.save()
+                        
+                        # Actualizar el estado del número de estacionamiento a 0 (no disponible)
+                        numero_estacionamiento = estacionamiento.numero_estacionamiento
+                        numero_estacionamiento.estado = '0'
+                        numero_estacionamiento.save()
+
+                    return redirect('ver_reservas')
                 else:
-                    reserva.estado_estacionamiento = 'Sin estacionamiento'
-
-                if reserva.patente_vehiculo:
-                    reserva.patente_vehiculo = reserva.patente_vehiculo.upper()
-                else:
-                    reserva.patente_vehiculo = ' '
-
-                #reserva.fecha_registro_visita = timezone.now()
-                reserva.save()  # Guarda la reserva
-
-                # Actualizar el estado del estacionamiento a reservado
-                if reserva.estacionamiento:
-                    estacionamiento = get_object_or_404(Estacionamiento, id=reserva.estacionamiento)
-                    estacionamiento.estado_estacionamiento = EstadoEstacionamiento.objects.get(id=3)  # Estado reservado
-                    estacionamiento.save()
-                    
-                    # Actualizar el estado del número de estacionamiento a 0 (no disponible)
-                    numero_estacionamiento = estacionamiento.numero_estacionamiento
-                    numero_estacionamiento.estado = '0'
-                    numero_estacionamiento.save()
-
-                return redirect('ver_reservas')
+                    messages.error(request, "Errores en el formulario. Por favor corrígelos.")
+                    print("Errores del formulario:", formulario.errors)
+                    msg = formulario.errors
             else:
-                messages.error(request, "Errores en el formulario. Por favor corrígelos.")
-                print("Errores del formulario:", formulario.errors)
-                msg = formulario.errors
-        
-        return render(request, 'home/registrar-reserva.html', {'formulario': formulario, 'residentes': residentes})
+                msg = "Errores en el formulario. Por favor corrígelos."
+        else:
+            formulario = ReservaEstacionamientoForm()
+
+        return render(request, 'home/registrar-reserva.html', {'formulario': formulario, 'residentes': residentes, 'msg':msg})
 
     return render(request, 'home/registrar-reserva.html', {'formulario': formulario, 'residentes': residentes, 'msg': msg})
 

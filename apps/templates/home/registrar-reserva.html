@@ -4,6 +4,22 @@
 
 {% block stylesheets %}{% endblock stylesheets %}
 
+<style>
+    .icon-button {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    .icon-button i {
+        color: yellow; /* Color del ícono */
+        font-size: 2rem; /* Tamaño del ícono */
+    }
+</style>
+
 {% block content %}
 <div class="container-fluid py-4">
     <div class="custom-card mb-4">
@@ -62,6 +78,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
+
   <style>
     .flatpickr-calendar {
       max-width: 12rem !important; 
@@ -74,7 +91,17 @@
   </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+
+$(document).ready(function() 
+{
+        $('#estacionamientosModal').on('hidden.bs.modal', function () {
+            // Deshabilitar campos específicos
+            document.getElementById('id_patente_vehiculo').disabled = false;
+            document.getElementById('id_descripcion_vehiculo').disabled = false;
+            document.getElementById('id_fecha_llegada_visita').disabled = false;
+        });
+});
+document.addEventListener('DOMContentLoaded', function() {
       flatpickr("#tiempo_permanencia", {
         enableTime: true,
         noCalendar: true,
@@ -99,11 +126,17 @@ document.addEventListener('DOMContentLoaded', function()
     const formulario = document.getElementById('editarReservaEstacionamientoForm');
     const estacionamientoInput = document.getElementById('estacionamiento');
    
+    // Deshabilito algunos campos del vehiculo.
+    document.getElementById('id_patente_vehiculo').disabled = true;
+    document.getElementById('id_descripcion_vehiculo').disabled = true;
+    document.getElementById('id_fecha_llegada_visita').disabled = true;
+
     async function cargarEstacionamientos() {
         fetch('/estacionamientos-disponibles/')
         .then(response => response.json())
         .then(data => {
-            if (data.estacionamientos) {
+            if (data.estacionamientos) 
+            {
                 const tableBody = document.getElementById('estacionamientos-body');
                 tableBody.innerHTML = ''; // Limpiar el contenido anterior
 
@@ -118,9 +151,11 @@ document.addEventListener('DOMContentLoaded', function()
                     
                     row.addEventListener('click', function() {
                         seleccionarEstacionamiento(estacionamiento.id, estacionamiento.numero, estacionamiento.ubicacion);
+
                     });
                     tableBody.appendChild(row);
                 });
+
             } else {
                 alert('No hay estacionamientos disponibles.');
             }
@@ -136,13 +171,11 @@ document.addEventListener('DOMContentLoaded', function()
     cargarEstacionamientos();
 });
 
-    document.addEventListener('submit', function(event) {
-        // const llaveEstacionamiento = document.getElementById('llave_estacionamiento').value;
-
+document.addEventListener('submit', function(event) {
+       
         const llaveEstacionamientoInput = document.getElementById('llave_estacionamiento');
     
         if (!llaveEstacionamientoInput) {
-            console.error("El elemento con ID 'llave_estacionamiento' no existe.");
             return; // Detener el flujo si el elemento no existe
         }
 
@@ -150,15 +183,16 @@ document.addEventListener('DOMContentLoaded', function()
         estacionamientoInput.value = llaveEstacionamiento;
     });
 
-    function seleccionarEstacionamiento(id, numero, ubicacion) {
+function seleccionarEstacionamiento(id, numero, ubicacion) {
         document.getElementById('estacionamiento').value = id;
         document.getElementById('numero_estacionamiento').value = numero;
         document.getElementById('ubicacion_estacionamiento').value = ubicacion;
         $('#estacionamientosModal').modal('hide');
     }
 
-    document.getElementById('buscarPropiedadForm').addEventListener('submit', function(event)
-    {
+// al hacer click en el boton de buscar propiedad
+document.getElementById('buscarPropiedadForm').addEventListener('submit', function(event)
+{
          event.preventDefault();
         var numeroPropiedad = document.getElementById('numero_propiedad').value;
         
@@ -172,7 +206,9 @@ document.addEventListener('DOMContentLoaded', function()
                 document.getElementById('propiedad').value = data.id;
                 document.getElementById('numero_propiedad_label').textContent = data.numero_propiedad;
                 document.getElementById('piso_propiedad').textContent = data.piso;
-                //document.getElementById('estado_propiedad').textContent = data.estado;
+                
+                const errorContainer = document.getElementById("id_residente2_error");
+                errorContainer.style.display = "none"; // Ocultar el error del residente.
 
                 const estadoPropiedad = document.getElementById('estado_propiedad');
                 if (estadoPropiedad) {
@@ -205,9 +241,10 @@ document.addEventListener('DOMContentLoaded', function()
     });
     // FUNCION QUE GATILLA DESPUES DE SELECCIONAR UN RESIDENTE DEL MODAL
 
+// cunado selecciono un residente del modal de residentes
+document.getElementById('seleccionarResidenteBtn').addEventListener('click', function() 
+{
 
-    document.getElementById('seleccionarResidenteBtn').addEventListener('click', function() 
-    {
         var dropdown = document.getElementById('residentesDropdown');
         var selectedResidenteId = dropdown.value;
         var datosResidenteDiv = document.getElementById('datosResidente');
@@ -230,10 +267,10 @@ document.addEventListener('DOMContentLoaded', function()
         }
     });
 
-  
-  
-    function actualizarDatosResidente(residenteId) {
-        if (residenteId) {
+
+function actualizarDatosResidente(residenteId)
+ {
+    if (residenteId) {
             fetch(`/obtener-datos-residente/?residente_id=${residenteId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -244,18 +281,19 @@ document.addEventListener('DOMContentLoaded', function()
                         document.getElementById('nombre_completo_residente').innerHTML = data.nombre_completo;
                         document.getElementById('telefono_residente').innerHTML = data.telefono;
                         document.getElementById('id_residente').value = data.id;
+
+
                     } else {
                         alert(data.error);
                     }
                 });
         }
     }
-
-    function actualizarPropiedad(id) {
+// al seleccionar una propiedad, guardo el id de la propiedad en un input oculto
+function actualizarPropiedad(id) {
         document.getElementById("id_propiedad").value = id;
     }
 
-    
 
 </script>
 {% endblock javascripts %}

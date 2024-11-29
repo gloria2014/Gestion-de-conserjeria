@@ -182,8 +182,8 @@ h5 {
     padding: 0;
 }
 .btn-icon-only i {
-    color: #007bff; /* Puedes ajustar el color de la flecha aquí */
-    font-size: 2rem; /* Ajusta el tamaño del ícono si es necesario */
+    color: darkorange; /* Puedes ajustar el color de la flecha aquí */
+    font-size: 1.5rem;  /*Ajusta el tamaño del ícono si es necesario */
 }
 
 
