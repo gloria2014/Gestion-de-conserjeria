@@ -9,6 +9,8 @@ from apps.home.models import (
   Propiedad, Residentes)
 
 from django.contrib.auth.password_validation import validate_password
+from django.utils.translation import gettext_lazy as _
+import re
 
 
 
@@ -327,6 +329,14 @@ class ReservaEstacionamientoForm(forms.ModelForm):
         required=False,
         widget=forms.HiddenInput(attrs={"id": "id_residente2"})
     )
+
+    rut_visita = forms.CharField(
+        max_length=12,
+        widget=forms.TextInput(attrs={'class': 'form-control rut'}),
+        required=True,
+        error_messages={'required': 'El RUT es obligatorio'}  # Esto va en el campo, no en el widget
+    )
+
     class Meta:
         model = ReservaEstacionamiento
         fields = [
@@ -351,13 +361,13 @@ class ReservaEstacionamientoForm(forms.ModelForm):
             'propiedad': forms.Select(attrs={'class': 'form-control'}),
             'estacionamiento': forms.Select(attrs={'class': 'form-control'}),
             'empleado': forms.Select(attrs={'class': 'form-control'}),
-            'rut_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'nombre_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'apellido_paterno_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'apellido_materno_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'telefono_visita': forms.TextInput(attrs={'class': 'form-control'}),
-            'relacion_residente': forms.TextInput(attrs={'class': 'form-control'}),
-            'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
+            'rut_visita': forms.TextInput( attrs={'class': 'form-control'}),
+            'nombre_visita': forms.TextInput(attrs={'class': 'form-control solo-letras', 'maxlength': '20'}),
+            'apellido_paterno_visita': forms.TextInput(attrs={'class': 'form-control solo-letras', 'maxlength': '20'}),
+            'apellido_materno_visita': forms.TextInput(attrs={'class': 'form-control solo-letras', 'maxlength': '20'}),
+            'telefono_visita': forms.TextInput(attrs={'class': 'form-control solo-numeros', 'maxlength': '9'}),
+            'relacion_residente': forms.TextInput(attrs={'class': 'form-control solo-letras', 'maxlength': '20'}),
+            'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control', 'maxlength': '8'}),
             'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia'}),
             'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_llegada_visita'}),
@@ -405,6 +415,15 @@ class ReservaEstacionamientoForm(forms.ModelForm):
                 self.add_error('id_residente2', "El ID del residente no es válido.")
 
         return cleaned_data
+    
+    def clean_rut_visita(self):
+        rut_visita = self.cleaned_data['rut_visita']
+        
+        # Aquí podrías agregar una validación más específica para el RUT, por ejemplo, con regex
+        if not re.match(r'^\d{1,2}\.\d{3}\.\d{3}[-][0-9kK]$', rut_visita):  # Expresión regular para RUT chileno
+            raise forms.ValidationError('El RUT ingresado no es válido.')  # Error personalizado
+        
+        return rut_visita
 
 class ReservaEstacionamientoEditForm(forms.ModelForm):
     numero_propiedad = forms.CharField(

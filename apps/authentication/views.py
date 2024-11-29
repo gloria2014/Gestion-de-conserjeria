@@ -8,7 +8,9 @@ from django.dispatch import receiver
 from django.shortcuts import render, redirect
 
 #from django.db import connection
-from apps.authentication.models import Region, Comuna, Rol, Empleados
+from apps.authentication.models import(
+Region, Comuna, Rol, Empleados
+) 
 from .forms import LoginForm, SignUpForm
 import logging
 from django.http import JsonResponse, HttpResponse
@@ -39,6 +41,10 @@ def login_view(request):
                 try:
                     empleado = Empleados.objects.get(usuario=user)
                     request.session['empleado_id'] = empleado.id
+
+                    print(f"Nombres: {empleado.nombres}, Apellido: {empleado.apellido_paterno}")
+                    request.session['nombre_empleado'] = (empleado.nombres + ' ' + empleado.apellido_paterno).title()
+
                 except Empleados.DoesNotExist:
                     messages.error(request, "Debe registrar un empleado antes de iniciar sesión.")
                     return redirect("logout")  # Redirige a la vista de logout

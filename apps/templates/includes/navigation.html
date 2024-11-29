@@ -70,7 +70,7 @@
               <li class="nav-item dropdown pe-3 d-flex align-items-center">
                   <a class="nav-link dropdown-toggle font-weight-bold px-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                       <i class="fa fa-user me-sm-1"></i>
-                      <span class="d-sm-inline d-none">{{ request.session.username }}</span>
+                      <span class="d-sm-inline d-none">{{ request.session.nombre_empleado }}</span>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                       <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fa fa-key me-2"></i>Actualizar Clave</a></li>

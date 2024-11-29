@@ -9,31 +9,30 @@
                 {% if residente %}
                 <div class="row">
                     <div class="col-md-12 d-flex flex-wrap align-items-center">
-                        <div class="form-group mb-3 me-4">
-                            <label for="nombre_completo_residente" class="form-label text-muted">Residente:</label>
-                            <div id="nombre_completo_residente" class="d-inline-block p-2 rounded bg-light w-100">
-                                <strong>{{ residente.nombres }} {{ residente.apellido_paterno }} {{ residente.apellido_materno }}</strong>
-                                
+                        <div class="form-group me-4">
+                            <label for="nombre_completo_residente" class="form-label">Residente:</label>
+                            <div id="nombre_completo_residente" class="d-inline-block p-2 rounded bg-light" style="font-size: small;">
+                                {{ residente.nombres }} {{ residente.apellido_paterno }} {{ residente.apellido_materno }}
                             </div>
-                        </div>
-                        <div class="form-group mb-3 me-4">
-                            <label for="telefono_residente" class="form-label text-muted">Contacto:</label>
-                            <div id="telefono_residente" class="d-inline-block p-2 rounded bg-light w-100">
-                                {{ residente.telefono }}
-                            </div>
-                        </div>
-                        <div class="form-group mb-3 me-4">
-                            <label for="numero_propiedad_label" class="form-label text-muted">Número Propiedad:</label>
-                            <div id="numero_propiedad_label" class="d-inline-block p-2 rounded bg-light w-100">
-                                {{ propiedad.numero_propiedad }}
-                            </div>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="piso_propiedad" class="form-label text-muted">Piso:</label>
-                            <div id="piso_propiedad" class="d-inline-block p-2 rounded bg-light w-100">
-                                {{ propiedad.piso }}
-                            </div>
-                        </div>
+                          </div>
+                          <div class="form-group me-4">
+                            <label for="telefono_residente" class="form-label">N° Contacto: </label>
+                            <div id="telefono_residente" class="d-inline-block p-2 rounded bg-light" style="font-size: small;">
+                              {{ residente.telefono }}</div>
+      
+                          </div>
+                          <div class="form-group me-4">
+                            <label for="numero_propiedad_label" class="form-label">Número Propiedad: </label>
+                            <div id="numero_propiedad_label" class="d-inline-block p-2 rounded bg-light" style="font-size: small;">
+                              {{ propiedad.numero }}</div>
+                            <input type="hidden" id="propiedad" name="propiedad" value="{{ propiedad.id }}">
+                          </div>
+                          
+                          <div class="form-group">
+                            <label for="piso_propiedad" class="form-label">Piso: </label>
+                            <div id="piso_propiedad" class="d-inline-block p-2 rounded bg-light" style="font-size: small;">
+                              {{ propiedad.piso }}</div>
+                          </div>
                     </div>
                 </div>
                 {% else %}
@@ -151,8 +150,8 @@
                         
                     </div>
                     <!-- Botón para abrir el modal de estacionamientos -->
-                    <a href="#" class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#estacionamientosModal">
-                        Ver Estacionamientos
+                    <a href="#" class="icon-button mt-4" data-bs-toggle="modal" data-bs-target="#estacionamientosModal" title="Ver Estacionamientos Disponibles">
+                        <i class="fas fa-car" style="font-size: large; color:red;"></i>
                     </a>
                 </div>
             </div>
@@ -180,7 +179,7 @@
     <div class="text-center">
         <div class="d-flex justify-content-center" style="margin-bottom: -1rem;">
             <input type="submit" class="btn btn-success btn-lg me-2" value="Guardar" style="width: 200px;">
-            <a href="{% url 'ver_reservas' %}" class="btn btn-secondary btn-md" style="width: 200px;">Volver</a>
+
         </div>
     </div>
 </form>

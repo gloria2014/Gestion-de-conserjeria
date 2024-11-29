@@ -200,9 +200,9 @@
                       <a class="btn btn-info btn-sm" style="font-weight: 100;" title="Ver Detalle" href="{% url 'detalle_reserva' reserva.id %}">
                           <i class="fas fa-info-circle"></i>
                       </a>
-                      <!-- <a href="#" class="btn btn-danger btn-sm" style="font-weight: 100;" title="Eliminar" onclick="confirmDelete('{% url 'eliminar_reserva' reserva.id %}')">
+                      <a href="#" class="btn btn-danger btn-sm" style="font-weight: 100;" title="Eliminar" onclick="confirmDelete('{% url 'eliminar_reserva' reserva.id %}')">
                         <i class="fas fa-trash"></i>
-                    </a> -->
+                    </a>
                   {% else %}
                       <span>No disponible</span>
                   {% endif %}
