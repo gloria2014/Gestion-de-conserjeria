@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from django.template.loader import render_to_string
-from weasyprint import HTML
+#from weasyprint import HTML
 
 from .models import Prueba
 from django.db.models import Q, Prefetch
