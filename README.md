@@ -235,7 +235,11 @@ Get-Content clientealfa_backup.sql | mysql -h servidorconserjeria01.mysql.databa
 
 
 
+TUTORAIL APSOS DESPLIEGUE
 
+https://www.youtube.com/watch?v=gaNOw96cwjE&t=409s
+
+https://webappgestionconserjeria-f6cchganhnfpfsbc.brazilsouth-01.azurewebsites.net
 
 
 
