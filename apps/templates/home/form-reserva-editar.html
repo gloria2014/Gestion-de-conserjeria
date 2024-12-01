@@ -24,7 +24,7 @@
                           <div class="form-group me-4">
                             <label for="numero_propiedad_label" class="form-label">Número Propiedad: </label>
                             <div id="numero_propiedad_label" class="d-inline-block p-2 rounded bg-light" style="font-size: small;">
-                              {{ propiedad.numero }}</div>
+                              {{ propiedad.numero_propiedad }}</div>
                             <input type="hidden" id="propiedad" name="propiedad" value="{{ propiedad.id }}">
                           </div>
                           
@@ -90,6 +90,7 @@
                         <div class="form-group">
                             <label for="{{ formulario.telefono_visita.id_for_label }}" class="form-label">{{ formulario.telefono_visita.label }}</label>
                             {{ formulario.telefono_visita }}
+                            <div id="{{ formulario.telefono_visita.id }}_error" class="text-danger small"></div>
                         </div>
                         </div>
                         <div class="col-md-6">
@@ -123,8 +124,9 @@
                             {% if campo.name in 'patente_vehiculo descripcion_vehiculo fecha_llegada_visita fecha_llegada_visita_confirmada  tiempo_permanencia' %}
                             <div class="col-md-6">
                                 <div class="form-group">
-                                <label for="{{ campo.id_for_label }}" class="form-label">{{ campo.label }}</label>
-                                {{ campo }}
+                                    <label for="{{ campo.id_for_label }}" class="form-label">{{ campo.label }}</label>
+                                    {{ campo }}
+                                    <div id="{{ campo.id }}_error" class="text-danger small"></div> 
                                 </div>
                                 
                             </div>
@@ -160,8 +162,8 @@
 
     <!-- Campo ocultos para enviar al formulario -->
     <input type="hidden" id="empleado" name="empleado" value="{{ request.session.empleado_id }}">
-    <input type="hidden" id="residente" name="residente" value="">
-    <input type="hidden" id="estacionamiento" name="estacionamiento">
+    <input type="hidden" id="residente" name="residente" value="{{residente.id}}">
+    <input type="hidden" id="estacionamiento" name="estacionamiento" value="{{estacionamiento.id}}">
     <div class="d-none">
         {{ formulario.propiedad }}
     </div>
@@ -183,3 +185,62 @@
         </div>
     </div>
 </form>
+
+{% load static %}
+<script src="{% static 'assets/js/utils.js' %}"></script>
+<script>
+
+function validarCamposVacios() {
+    var campos = document.querySelectorAll('#editarReservaEstacionamientoForm input');
+    
+    // Limpia todos los mensajes de error anteriores
+    document.querySelectorAll('.text-danger.small').forEach(function(el) {
+        el.innerHTML = '';
+    });
+
+    var isValid = true;
+
+    campos.forEach(function(campo) {
+        //alert(campo.id + " " + campo.value);
+        // Ignorar el campo estacionamiento si está vacío
+        if (campo.id === 'estacionamiento' && campo.value.trim() === '') {
+            return; 
+        }
+
+        // Encuentra el contenedor de error asociado
+        var errorDivId = campo.id + "_error";
+        var errorDiv = document.getElementById(errorDivId);
+
+        if (campo.value.trim() === '') {
+            // Si no existe el contenedor de error, lo crea
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'text-danger small';
+                errorDiv.id = errorDivId;
+                campo.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.innerHTML = 'Este campo es obligatorio.';
+            isValid = false;
+        } else if (errorDiv) {
+            // Limpia el mensaje si el campo está lleno
+            errorDiv.innerHTML = '';
+        }
+    });
+
+    return isValid;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    configurarValidacionSoloNumeros('.solo-numeros');
+
+    document.getElementById('editarReservaEstacionamientoForm').addEventListener('submit', function(event) {
+        if (!validarCamposVacios()) {
+            event.preventDefault(); // Evitar el envío del formulario si hay campos vacíos
+        }
+    });
+});
+
+
+
+
+</script>

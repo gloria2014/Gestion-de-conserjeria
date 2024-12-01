@@ -169,9 +169,6 @@
             </div>
     
             <!-- Sección de Datos del Vehículo -->
-
-
-
             <div class="accordion-item">
                 <div class="accordion-header" id="headingVehicle">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseVehicle" aria-expanded="false" aria-controls="collapseVehicle">
@@ -205,7 +202,7 @@
                   <div class="col-md-6">
                       <div class="form-group">
                           <label for="idFechaLlegadaVisita" class="form-label">Fecha de Llegada</label>
-                          <input type="text" id="id_fecha_llegada_visita" name="fecha_llegada_visita" class="form-control" disabled>
+                          <input type="datetime" id="id_fecha_llegada_visita" name="fecha_llegada_visita" class="form-control" disabled>
                           <div id="idFechaLlegadaVisita_error" class="text-danger small"></div>
                       </div>
                   </div>
@@ -276,7 +273,7 @@
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
-    configurarValidacionRut('.rut'); // Selector genérico para todos los campos con clase "rut"
+    configurarValidacionRut('.rut', '#rut_visita_error2'); // Selector genérico para todos los campos con clase "rut"
     document.getElementById('reservaEstacionamientoForm').addEventListener('submit', validarFormularioRut);
 });
 
@@ -287,9 +284,6 @@ document.addEventListener('DOMContentLoaded', function ()
   configurarValidacionSoloNumeros('.solo-numeros'); 
 });
 
-// document.addEventListener('DOMContentLoaded', function () {
-//     configurarValidacionSoloNumeros('.solo-numeros'); // Configurar la validación para todos los campos de números
-// });
 
     // Agregar el evento de validación al formulario
 document.getElementById('reservaEstacionamientoForm').addEventListener('submit', function(event)
@@ -321,6 +315,7 @@ function limpiarCampos()
 
   function validarCamposVaciosFormularioReserva() 
   {
+    var rutVisita = document.getElementById('id_rut_visita');
     var nombreVisita = document.getElementById('id_nombre_visita');
     var apellidoPaternoVisita = document.getElementById('id_apellido_paterno_visita');
     var apellidoMaternoVisita = document.getElementById('id_apellido_materno_visita');
@@ -332,6 +327,10 @@ function limpiarCampos()
         el.innerHTML = '';
     });
     var isValid = true;
+    if (rutVisita.value.trim() === '') {
+        document.getElementById('rut_visita_error2').innerHTML = 'El RUT es obligatorio.';
+        isValid = false;
+    }
     if (nombreVisita.value.trim() === '') {
         document.getElementById('nombre_visita_error2').innerHTML = 'El nombre es obligatorio.';
         isValid = false;

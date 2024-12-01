@@ -1,5 +1,5 @@
 // Función genérica para validar y formatear RUT en tiempo real
-function configurarValidacionRut(selector) {
+function configurarValidacionRut(selector, errorSelector) {
     document.querySelectorAll(selector).forEach((campo) => {
         campo.addEventListener('input', function () {
             let rut = this.value;
@@ -17,12 +17,14 @@ function configurarValidacionRut(selector) {
             if (rut.length >= 9) {
                 if (validarRut(rut)) {
                     this.style.borderColor = 'green'; // Válido
-                    document.getElementById('rut_visita_error2').innerHTML = '';
+                    document.querySelector(errorSelector).innerHTML = '';
                 } else {
                     this.style.borderColor = 'red'; // Inválido
+                    document.querySelector(errorSelector).innerHTML = 'Formato de RUT incorrecto.';
                 }
             } else {
                 this.style.borderColor = ''; // Restablecer estilo
+                document.querySelector(errorSelector).innerHTML = ''; // Limpiar errores
             }
         });
     });
@@ -67,16 +69,44 @@ function validarRut(rut) {
     return dv === dvCalculado;
 }
 
-// Función para validar el RUT en el evento submit del formulario
-function validarFormularioRut(event) {
-    const rutCampo = document.querySelector('.rut');
-    const rut = rutCampo.value;
 
-    if (!validarRut(rut)) {
-        event.preventDefault(); // Evitar el envío del formulario
-        document.getElementById('rut_visita_error2').innerHTML = 'Formato de Rut incorrecto.';
-       
-        //rutCampo.style.borderColor = 'red'; // Marcar el campo como inválido 
-     }
+function validarFormularioRut(event, rutCampoId, errorCampoId) 
+{
+    const rutCampo = document.querySelector(rutCampoId); // Obtener el campo del RUT
+    const errorCampo = document.querySelector(errorCampoId); // Obtener el contenedor del error
+   // alert("rutCampo" +  rutCampo + " - errorCampo  " + errorCampo);
+    if (rutCampo && errorCampo) {
+        const rut = rutCampo.value;
+
+        if (!validarRut(rut)) {
+            event.preventDefault(); // Evitar el envío del formulario
+            errorCampo.innerHTML = 'Formato de RUT incorrecto.';
+            rutCampo.style.borderColor = 'red'; // Marcar el campo como inválido
+        }
+    } else {
+        console.error('No se encontraron los elementos con los IDs proporcionados:', rutCampoId, errorCampoId);
+    }
 }
+
+// Función para validar el correo electrónico en tiempo real
+function configurarValidacionEmail(selector, errorCampoId) {
+    document.querySelectorAll(selector).forEach((campo) => {
+        campo.addEventListener('input', function () {
+            let email = this.value;
+
+            // Expresión regular para validar el formato del correo electrónico
+            const regexEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            // Verificar si el correo tiene un formato válido
+            if (regexEmail.test(email)) {
+                //this.style.borderColor = 'green'; // Válido
+                document.querySelector(errorCampoId).innerHTML = ''; // Limpiar mensaje de error
+            } else {
+                //this.style.borderColor = 'red'; // Inválido
+                document.querySelector(errorCampoId).innerHTML = 'Correo electrónico inválido'; // Mostrar error
+            }
+        });
+    });
+}
+
 

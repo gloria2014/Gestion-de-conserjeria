@@ -66,6 +66,7 @@
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Teléfono</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Correo Electrónico</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Dirección</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">fecha Ingreso</th>
                   <th class="text-secondary opacity-7">Acción</th>
                 </tr>
               </thead>
@@ -90,6 +91,9 @@
                   </td>
                   <td>
                     <p class="text-xs text-secondary mb-0">{{ item.direccion }}</p>
+                  </td>
+                  <td>
+                    <p class="text-xs text-secondary mb-0">{{ item.fecha_ingreso|date:"Y-m-d"  }}</p>
                   </td>
                   <td class="align-middle">
                     <input type="hidden" name="id" value="{{ item.id }}">
