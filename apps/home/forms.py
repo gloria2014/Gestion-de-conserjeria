@@ -76,7 +76,6 @@ class EmpleadoForm(forms.ModelForm):
         label="Rol"
     )
    
-
     clave_temporal = forms.CharField(
         widget=forms.PasswordInput(
             attrs={
@@ -85,36 +84,51 @@ class EmpleadoForm(forms.ModelForm):
                 "autocomplete": "off"
             }
         ),
+        max_length=15,
+        required=True
+    )
+
+    rut = forms.CharField(
+        max_length=12,
+        widget=forms.TextInput(attrs={'class': 'form-control rut'}),
+        required=True,
+        error_messages={'required': 'El RUT es obligatorio'}  # Esto va en el campo, no en el widget
+    )
+
+    sexo = forms.ChoiceField(
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input', 'autocomplete': 'off'}),
+        choices=[('M', 'Masculino'), ('F', 'Femenino')],
         required=True
     )
 
     class Meta:
-        model = Empleados  # Asegúrate de que este es el modelo correcto
-        fields = ['rut', 'nombres', 'apellido_paterno', 'apellido_materno', 'direccion',
-                   'telefono', 'correo_electronico', 'sexo', 'fecha_ingreso','id_region',
-                   'id_comuna', 'id_rol','clave_temporal']
+        model = Empleados  
+        fields = [
+            'rut',
+            'nombres',
+            'apellido_paterno',
+            'apellido_materno',
+            'direccion',                  
+            'telefono',
+            'correo_electronico',
+            'sexo',
+            'fecha_ingreso',
+            'id_region',
+            'id_comuna',
+            'id_rol',
+            'clave_temporal'
+            ]
 
         widgets = {
-            'fecha_ingreso': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_ingreso', 'autocomplete': 'off'}),
-        #   'fecha_retiro': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_retiro'}),
-          
-            }
-    
-    
-    rut = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '111111111-1', 'autocomplete': 'off'}))
-    apellido_paterno = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
-    telefono = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
-    direccion = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
-    sexo = forms.ChoiceField(
-        widget=forms.RadioSelect(attrs={'class': 'form-check-input', 'autocomplete': 'off'}),
-        choices=[('M', 'Masculino'), ('F', 'Femenino')]
-    )
-    nombres = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
-    apellido_materno = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
-    correo_electronico = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    #comuna = forms.ModelChoiceField(queryset=Comuna.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
-    fecha_ingreso = forms.DateField(widget=forms.TextInput(attrs={'class': 'form-control'}))
-
+            'rut' : forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombres' : forms.TextInput(attrs={'class': 'form-control solo-letras', 'autocomplete': 'off', 'maxlength': '20'}),
+            'apellido_paterno' : forms.TextInput(attrs={'class': 'form-control solo-letras', 'autocomplete': 'off','maxlength': '20'}),
+            'apellido_materno' : forms.TextInput(attrs={'class': 'form-control solo-letras', 'autocomplete': 'off', 'maxlength': '20'}),
+            'direccion' : forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off', 'maxlength': '30'}),
+            'telefono' : forms.TextInput(attrs={'class': 'form-control solo-numeros', 'autocomplete': 'off', 'maxlength': '9'}),
+            'correo_electronico' : forms.TextInput(attrs={'class': 'form-control email', 'autocomplete': 'off', 'maxlength': '20'}),   
+            'fecha_ingreso': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_fecha_ingreso'})         
+        }
   
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -186,25 +200,35 @@ class EmpleadoEditForm(forms.ModelForm):
         label="Rol"
     )
    
+
     class Meta:
         model = Empleados  # Asegúrate de que este es el modelo correcto
-        fields = ['rut', 'nombres', 'apellido_paterno', 'apellido_materno', 'sexo', 'fecha_ingreso',
+        fields = ['rut', 'nombres', 'apellido_paterno', 'apellido_materno', 'sexo',
                    'id_rol','direccion', 'telefono', 'correo_electronico', 'id_region',
                    'id_comuna']
 
-    rut = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '111111111-1', 'autocomplete': 'off'}))
+    rut = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
     apellido_paterno = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
-    telefono = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
-    direccion = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
+    telefono = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control solo-numeros', 'autocomplete': 'off', 'maxlength': '9'}))
+    direccion = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off', 'maxlength': '30'}))
     sexo = forms.ChoiceField(
         widget=forms.RadioSelect(attrs={'class': 'form-check-input', 'autocomplete': 'off'}),
         choices=[('M', 'Masculino'), ('F', 'Femenino')]
     )
     nombres = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
     apellido_materno = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
-    correo_electronico = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    fecha_ingreso = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    correo_electronico = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'maxlength': '20'}))
+    
+    def clean_correo_electronico(self):
+        correo = self.cleaned_data.get('correo_electronico')
 
+        # Validar el formato del correo con una expresión regular
+        if correo:
+            correo_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(correo_regex, correo):
+                raise ValidationError("El formato del correo electrónico no es válido.")
+        
+        return correo
   
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -235,7 +259,7 @@ class EmpleadoEditForm(forms.ModelForm):
             self.fields['id_comuna'].queryset = self.instance.id_region.comuna_set.order_by('nombre')
 
         # Deshabilitar campos específicos
-        disabled_fields = ['rut', 'nombres', 'apellido_paterno', 'apellido_materno', 'sexo', 'fecha_ingreso', 'id_rol']
+        disabled_fields = ['rut', 'nombres', 'apellido_paterno', 'apellido_materno', 'sexo', 'id_rol']
         for field in disabled_fields:
             self.fields[field].widget.attrs['disabled'] = True
 
@@ -478,9 +502,9 @@ class ReservaEstacionamientoEditForm(forms.ModelForm):
             'nombre_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             'apellido_paterno_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             'apellido_materno_visita': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
-            'telefono_visita': forms.TextInput(attrs={'class': 'form-control'}),
+            'telefono_visita': forms.TextInput(attrs={'class': 'form-control solo-numeros', 'maxlength': '9'}),
             'relacion_residente': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
-            'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
+            'patente_vehiculo': forms.TextInput(attrs={'class': 'form-control', 'maxlength': '8'}),
             'descripcion_vehiculo': forms.TextInput(attrs={'class': 'form-control'}),
             'tiempo_permanencia': forms.TimeInput(format='%H:%M', attrs={'class': 'form-control', 'id': 'tiempo_permanencia'}),
             'fecha_llegada_visita': forms.DateTimeInput(attrs={'class': 'form-control', 'id': 'id_fecha_llegada_visita'})

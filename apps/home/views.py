@@ -126,7 +126,10 @@ def editar_conserje_view(request, id):
     if formulario.is_valid() and request.POST:
         formulario.save()
         return redirect('ver_conserjes')
-
+    else:
+        print("Errores del formulario:", formulario.errors)
+        messages.error(request, "Hay errores en el formulario. Por favor, corrígelos.")
+        
     return render(request, 'home/editar-conserje.html', {'formulario':formulario})
 
 
@@ -664,6 +667,16 @@ def editar_reserva_view(request, id):
     reserva = get_object_or_404(ReservaEstacionamiento, id=id)
     propiedad = reserva.propiedad
 
+    # Imprimir información de la reserva
+    print("Información de la reserva:")
+    print(f"ID: {reserva.id}")
+    print(f"Propiedad: {propiedad}")
+    print(f"Estacionamiento: {reserva.estacionamiento}")
+    print(f"Patente Vehículo: {reserva.patente_vehiculo}")
+    print(f"Fecha Llegada Visita: {reserva.fecha_llegada_visita}")
+    print(f"Tiempo Permanencia: {reserva.tiempo_permanencia}")
+
+
     # Obtener información del estacionamiento basado en el id
     estacionamiento = None
     numero_estacionamiento = "Sin asignar"
@@ -677,12 +690,23 @@ def editar_reserva_view(request, id):
             ubicacion_estacionamiento = estacionamiento.ubicacion.nombre
             llave_estacionamiento = estacionamiento.id 
 
+            # Imprimir información del estacionamiento
+            print("Información del estacionamiento:")
+            print(f"ID: {estacionamiento.id}")
+            print(f"Número Estacionamiento: {numero_estacionamiento}")
+            print(f"Ubicación Estacionamiento: {ubicacion_estacionamiento}")
+
         except Estacionamiento.DoesNotExist:
             pass  # Mantener los valores por defecto si no existe el estacionamiento
 
     # Obtener la información del residente
     try:
         residente = Residentes.objects.get(id=reserva.id_residente2)
+    
+        print("Información del residente:")
+        print(f"ID: {residente.id}")
+        print(f"Nombre: {residente.nombres} {residente.apellido_paterno} {residente.apellido_materno}")
+ 
     except Residentes.DoesNotExist:
         residente = None  # Si no hay residente asociado, asignar None
 
@@ -745,6 +769,7 @@ def editar_reserva_view(request, id):
             msg = formulario.errors
     else:
         formulario = ReservaEstacionamientoEditForm(instance=reserva)
+   
     
     return render(request, 'home/editar-reserva.html', {
         'formulario': formulario,
