@@ -42,11 +42,22 @@
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<style>
+    .flatpickr-calendar {
+      max-width: 12rem !important; 
+      left: 834.469px !important;
+      
+    }
+   
+  </style>
 
 <script>
 
 
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() 
+{
     const estacionamientosBody = document.getElementById('estacionamientos-body');
     
     async function cargarEstacionamientos() {
@@ -82,6 +93,24 @@
     }
 
     cargarEstacionamientos();
+
+    flatpickr("#tiempo_permanencia", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        defaultHour: 1,
+        minuteIncrement: 60,
+        minTime: "01:00",
+        maxTime: "08:00",
+        onReady: function(selectedDates, dateStr, instance) {
+          instance.set({ minute: 0 }); // Set the minute to 0
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+          instance.set({ minute: 0 }); // Set the minute to 0
+        }
+      });
+
 });
 
 function seleccionarEstacionamiento(id, numero, ubicacion) {
