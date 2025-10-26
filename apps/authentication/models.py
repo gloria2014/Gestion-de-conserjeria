@@ -66,7 +66,8 @@ class Region(models.Model):
         return self.nombre
 
 class Comuna(models.Model):
-    region = models.ForeignKey(Region, on_delete=models.CASCADE)
+    id_region = models.ForeignKey(Region, on_delete=models.CASCADE)
+    #region = models.ForeignKey(Region, on_delete=models.CASCADE) luego volver gloria
     nombre = models.CharField(max_length=100)
 
     def __str__(self):

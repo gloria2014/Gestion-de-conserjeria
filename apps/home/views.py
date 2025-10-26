@@ -30,14 +30,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Esta funcion es el ejemplo de la pagina de youtube. NO se usan 
-@login_required(login_url="/login/")
-def inicio(request):
-    return HttpResponse("<h1>bienvenido a home </h1>")
-
-#------ fin ejemplo yotube ---
-
-
 @login_required(login_url="/login/")
 def index(request):
     context = {'segment': 'index'}
@@ -49,8 +41,6 @@ def index(request):
 @login_required(login_url="/login/")
 def pages(request):
     context = {}
-    # All resource paths end in .html.
-    # Pick out the html file name from the url. And load that template.
     try:
 
         load_template = request.path.split('/')[-1]
@@ -80,8 +70,9 @@ def load_regiones(request):
     return JsonResponse(list(regiones), safe=False)
 
 def load_comunas(request):
+    print('QUE VIENE EN COMUNAS ::::::::::::::::::::::::::', request)
     region_id = request.GET.get('region_id')
-    comunas = Comuna.objects.filter(region_id=region_id).order_by('nombre')
+    comunas = Comuna.objects.filter(id_region=region_id).order_by('nombre')
     return JsonResponse(list(comunas.values('id', 'nombre')), safe=False)
 
 

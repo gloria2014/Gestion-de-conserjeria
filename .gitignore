@@ -13,6 +13,7 @@ __pycache__/
 
 # venv
 env
+.env
 venv
 
 # other
@@ -28,4 +29,7 @@ staticfiles/*
 apps/static/assets/node_modules
 apps/static/assets/yarn.lock
 apps/static/assets/.temp
+
+# cualquier entorno virtual
+entorno*/
 

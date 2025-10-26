@@ -140,7 +140,7 @@ class EmpleadoForm(forms.ModelForm):
             elif user.role == 'super_admin':
                 self.fields['id_rol'].queryset = Rol.objects.filter(nombre__in=['admin_condominio', 'conserje'])
 
-             # Imprimir los roles disponibles en el queryset para verificar
+             # Roles disponibles en el queryset para verificar
             print("Roles disponibles en el formulario:", self.fields['id_rol'].queryset)
 
 
@@ -152,7 +152,7 @@ class EmpleadoForm(forms.ModelForm):
         if 'id_region' in self.data:
             try:
                 region_id = int(self.data.get('id_region'))
-                self.fields['id_comuna'].queryset = Comuna.objects.filter(region_id=region_id).order_by('nombre')
+                self.fields['id_comuna'].queryset = Comuna.objects.filter(id_region=region_id).order_by('nombre')
             except (ValueError, TypeError):
                 pass  # invalid input from the client; ignore and fallback to empty queryset
         elif self.instance.pk:
@@ -245,14 +245,11 @@ class EmpleadoEditForm(forms.ModelForm):
 
 
         roles = Rol.objects.all()
-        print("roles disponibles:")
-        for rol in roles:
-            print(f"ID: {rol.id}, Nombre: {rol.nombre}")
 
         if 'id_region' in self.data:
             try:
                 region_id = int(self.data.get('id_region'))
-                self.fields['id_comuna'].queryset = Comuna.objects.filter(region_id=region_id).order_by('nombre')
+                self.fields['id_comuna'].queryset = Comuna.objects.filter(id_region=region_id).order_by('nombre')
             except (ValueError, TypeError):
                 pass  # invalid input from the client; ignore and fallback to empty queryset
         elif self.instance.pk:
