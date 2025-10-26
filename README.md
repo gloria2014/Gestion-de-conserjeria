@@ -1,257 +1,96 @@
 
 REQUISITOS
+-----------
 1. Este proyecto se ejecuta con python 3.9
 2. mysql 8.0
-3. Instalar la libreria para weasyprint
-4. instalar mysql connector 8.0
+3. instalar mysql connector 8.0
   https://downloads.mysql.com/archives/c-odbc/
+
   
+CONFIGURACIÓN DE VARIABLES SEGUN AMBIENTE
+-----------------------------------------
+1. Ambiente local.- comentar variables globales de producción en el archivo .env
+2. Ambiente Producción.- comentar variables globales para levantar local en el archivo .env
 
 
----- PASOS -------
-1. instalar python 3.9
-2. crear un nuevo entorno virtual con python 3.9
+PASOS
+-----
+1. instalar python 3.9 o la version que usaras 3.12 por ejemplo en el equipo
 
-  - PS C:\Project-mios\Gestion-de-conserjeria>  py -3.9 -m venv entorno5
+ANTES DE CREAR EL PROEYCTO TIPO API DEBES CREAR EL ENTORNO VIRTUAL
+--------------------------------------------------------------------------
+2. Crear  el directorio que contendrá el proeycto, abrirlo con visual estudio code y dedse aqui crear y activar un nuevo entorno virtual con python 3.9 o el que usará.
+  - > py -3.9 -m venv entorno
+  - > .\entorno\Scripts\activate
 
-3. instalar las dependencias necesarias para weasyprint. 
-   3.1. Descargar e instalar GTK de esta url
-  - https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
+2.1 Creo el proeycto con un punto (esto para qeu no cree el proeycto dentro de una carpeta nueva)
+	(entorno1) PS C:\Project-mios\proyectoApi> django-admin startproject proyecto_api . 
 
-   3.2 Agregar la libreria "weasyprint" en el archivo requirements.txt 
-   3.3 Instalar weasyprint con el entorno activado 
- - (entorno5) PS C:\Project-mios\Gestion-de-conserjeria> pip install weasyprint
-   3.4 Reiniciar el equipo
+3. Configuración de dependencias
+   - El archivo requirements.txt se encuentra en la raíz del proyecto
+   - Este archivo contiene la lista completa de dependencias de Python
+   - El archivo está configurado y listo para la instalación.
+SI NO TIENE EL ARCHIVO.- copiar el archivo .txt 
 
-4. Instalar el archivo requirements.txt
-  - (entorno5) PS C:\Project-mios\Gestion-de-conserjeria> pip install -r requirements.txt
+4. Configuracion del archivo settings.py
+   - Configurar la conexión a la base de datos local o produción.
 
-6. recuerda tener levantada la base de datos y la conexion debe estar correcta 
+4. Instalción de dependencias
+  - (entorno)... > pip install -r requirements.txt
 
-7. Levantar el proyecto con python manage.py runserver 8081
-. Aqui va a decir que falta migraciones. no importa igual levanta.
+5. Levantar el proyecto local
+  - > python manage.py runserver 8081
+. Indica que falta migraciones, omitir mensaje por ahora.
+. Levantar el servidor de base de datos
 
-8. Hacer las migraciones
-  8.1 (entorno5) PS C:\Project-mios\Gestion-de-conserjeria> python manage.py makemigrations
-  8.2. (entorno5) PS C:\Project-mios\Gestion-de-conserjeria> python manage.py migrate
-  8.3 Para migraciones posteriores, eliminar la carpeta de migracion inicial y volver a migrar
+5.1 CREAR LA APLICACION PRINCIPAL
+	(entorno1) PS C:\Project-mios\proyectoApi> python manage.py startapp project
 
-9. Crear el superusuario desde la terminal
-  9.1 (entorno5) PS C:\Project-mios\Gestion-de-conserjeria> python manage.py createsuperuser
-  9.2. ingresar user = admin, correo, y pass
 
-10. Ingresar al panel de django 
-  10.1 Ingresar los roles(1 admin, 2 conserje)    
-  10.1 Crear al usuario administrador de condominio.
+6. Crear la base de datos
+
+7. Hacer las migraciones
+  (entorno)...> python manage.py makemigrations
+  (entorno)...> python manage.py migrate
+. Para migraciones posteriores, eliminar la carpeta de migracion inicial y volver a migrar
+
+8. Crear el super usuario desde la terminal
+  (entorno)...> python manage.py createsuperuser
+. Ingresar user=admin, correo, y pass
+
+8. Llenar las tablas maestras
+   - region, comuna, rol, estadoestacionamiento, numeroestacionamiento, tipoestacionamiento,               ubicacionestacionamiento, tipocondominio, estacionamiento, home_condominio, home_propiedad
+
+      INSERT INTO conserjeria_10.home_estadoestacionamiento VALUES (1,'Disponible','1'),(2,'Ocupado','1'),(3,'Reservado','1'),(4,'En mantenimiento','1');
+
+      INSERT INTO conserjeria_10.home_numeroestacionamiento VALUES (1,'A100','1'),(2,'A101','1'),(3,'A102','1'),(4,'B100','1'),(5,'B101','1'),(6,'B102','1'),(7,'B103','1'),(8,'B104','0');
+
+      INSERT INTO conserjeria_10.home_tipoestacionamiento VALUES (1,'Visita','1'),(2,'Residente','1'),(3,'Discapacitados','1');
   
+      INSERT INTO conserjeria_10.home_ubicacionestacionamiento VALUES (1,'NIvel -2','1'),(2,'Nivel -1','1'),(3,'Primer piso','1');
 
-11. Ir a la base de datos
- 11.1 Copiar la clave del admin al admin_condominio desde la bd
- 12.2 Ingresar las regiones y comunas
+      INSERT INTO conserjeria_10.home_estacionamiento VALUES (1,'2024-11-16',1,1,1,3),(2,'2024-11-16',1,2,1,3),(3,'2024-11-16',1,4,1,2),(4,'2024-11-16',3,8,2,1),(6,'2024-11-23',1,3,1,3),(7,'2024-11-23',1,5,1,2),(8,'2024-11-23',1,6,1,2),(9,'2024-11-23',1,7,1,1);
 
- 
+      INSERT INTO conserjeria_10.home_condominio VALUES (1,'Los Alamos','Camino la Laguna','1',86,7,1);
 
+      INSERT INTO conserjeria_10.home_propiedad VALUES (1,100,1,'1','NO','2024-10-26',1),(2,101,1,'1','SI','2024-10-26',1),(3,102,1,'1','SI','2024-11-24',1);
 
+      INSERT INTO conserjeria_10.home_residentes VALUES (1,'14.750.183-8','Sonia','Apaza','Gutierrez',963382287,'residenteA@gmail.com','NO','activo',1),(2,'14.750.183-9','Francisco','Apaza','Gutierrez',963382287,'residenteB@gmail.com','NO','activo',1),(3,'14.750.183-1','Jorge','Apaza','Gutierrez',963382287,'residenteC@gmail.com','SI','activo',2),(4,'21.434.544-7','Luis','Flores','Torres',925325889,'asdas@sadsa.com','SI','1',1),(5,'14.750.183-2','Julio','Lopez','Oragon',987654321,'xxxxxx2@gmail.com','SI','activo',3);
 
+8. Crear empleado Administrador del Condominio 
+      0) Ingresar al panel de django como admin
+      1) Crear User: ingresar los datos. Seleccionar rol admin-condominio.
+      2) Crear Empleado: ingresar sus datos. 
+      3) Ir a la base de datos y actualizar su clave (tabla user)
 
+ . Todo administrador del condominio debe ser ingresado por el admin desde el portal de django.
 
-
-### 👉 Set Up for `Windows` 
-
-> Install modules via `VENV` (windows) 
-
-```
-$ virtualenv env
-$ .\env\Scripts\activate
-$ pip3 install -r requirements.txt
-```
-
-<br />
-
+9. Crear empleado Conserje (Desde la aplicación web)
 
 SUBIR CAMBIOS DE MI RAMA
-1. Añadir los cambios al área de preparación:
- desde mi rama local > git add . 
-2. Confirmar los cambios
-  git commit -m "Descripción de los cambios realizados"
-3.  Subir la nueva rama al repositorio remoto
-  git push origin nueva-rama
-4. Fusionaar o hacer merge mi rama con la rama main
+
 
 5. Ir al repositorio y hacer un pr. 
 
-TRAER LA ULTIMA VERSIÓN DE LA RAMA MAIN A MI RAMA LOCAL
-1. Si no estas en tu rama, cambiarse a tu rama local
-  git checkout tu-rama-actual
-
-2.Actualizar la rama main local con los últimos cambios del repositorio remoto:
-  git fetch origin
-  git checkout main
-  git pull origin main
-
-3. Cambiar de nuevo a tu rama actual:
-  git checkout tu-rama-actual
-
-4. Fusionar los cambios de la rama
-  git merge main
-
------- ****** PASOS PARA CONECTARSE A LA BASE DE DATOS DE AZURE DESDE EL CLIENTE MYSQL  ******* ------
-
--> DESDE EL PORTAL
-1. Ingresar al portal de azure y crear el servidor para mysql
-2. crear la base de datos (vacia)
-3. Descargar los certificados SSL de Azure para establecer la conexion segura 
-  3.1. ir al recurso servidor 
-  3.2. en el menu > configuracion > redes : Descargar certificado SSL 
-  3.3. guardar el certificado en el equipo local
-
--> EN EL EQUIPO
-1. Abrir mysql workbench
-2. crear nueva conexion
-3. ingresar las credenciales del servidor de azure
-4. ir a la pestaña SSL y selccionar required, en CA file: ingresa la ruta del archivo DigiCertGlobalRootCA.crt.pem
-5. probar la conexion Y se debe ver la base de datsoo que creamos en azure vacia obviamente poruqe aun no se ha migrado
-
--> MIGRAR EL MODELO A LA BASE DE DATOS DE AZURE A TRAVEZ DEL CLIENTE
-1. Modificar la conexion en el setting.py
-      DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'nombre_base_de_datos_de_azure',
-            'USER':'User_azure',
-            'PASSWORD': 'xxxx',
-            'HOST': 'nombre_servidor.mysql.database.azure.com',
-            'PORT': '3306',
-            'OPTIONS': {
-                'ssl': {'ca': 'C:/turuta/DigiCertGlobalRootCA.crt.pem'}  # Ruta al certificado SSL
-            }
-        }
-    }
-  
-  2. Migrar el modelo:
-   2.1. acceder a mysql desde la aplicación: probar estos:
-    - mysql -h azure@servidorconserjeria01 -u azure -p    
-    - (entorno7) PS C:\Project-mios\Gestion-de-conserjeria> mysql -h servidorconserjeria01.mysql.database.azure.com -u azure@servidorconserjeria01 -p --ssl-mode=REQUIRED
-    SINO RESULTA PROBAR DESDE LA SHELL -> ingresar a modo mysql asi: PS C:\Users\Gloria> mysql -u azure -p  
-    y volver a ejcutar
-
-  2.2. desde la terminal del proyecto, dentro del entorno virtual migrar:
-    (entorno7) PS C:\Project-mios\Gestion-de-conserjeria> python manage.py makemigrations
-    (entorno7) PS C:\Project-mios\Gestion-de-conserjeria> python manage.py migrate
-
--> Conéctate a tu base de datos MySQL en Azure:
-1. Cargar el larchivo DigiCertGlobalRootCA.crt.pem a azure
-  1.1 abrir la shell de azure y en la parte de arriba cargar archivo.
-  1.2 validar si se cargó correcto: PS /home/gcastromerma> ls ~/ 
-  1.3.COnectarse: PS /home/gcastromerma> mysql -h servidorconserjeria01.mysql.database.azure.com -u azure -p --ssl-ca=/home/gcastromerma/DigiCertGlobalRootCA.crt.pem 
-
-                 PS /home/gcastromerma> mysql -h servidorconserjeria01.mysql.database.azure.com -u azure -p --ssl-ca=/home/gcastromerma/DigiCertGlobalRootCA.crt.pem 
-
-  1.4 pide tu clave
-  1.5 MySQL [(none)]> SHOW DATABASES; con este comando lista las bases de datos
-    MySQL [(none)]> USE conserjeria_2
-    MySQL [conserjeria_2]> SHOW TABLES;
 
 
-
-
------ ************** FIN ************* ---------------
-
-
-
-
---------- PASOS PARA MIGRAR LA BASE DE DATOS  CON BACKUP ---------------
-Requisitos
-- tener la base de datos local creada y con data
-
-PASOS
-Paso 1: Exportar la Base de Datos Local usando mysqldump
-1. Hacer un backup .sql de la base de datos: 
-  - Abrir la terminal de shell del equipo y escribir :
-    mysqldump --verbose -u root -p conserjeria_2 > backup20241020.sql
-    
-  - Abrir el archivo backup.sql desde visual code y asgurarse que el encoding tenga UTF-8 si no lo tiene
-    ir a la derecha inferior y cabmbiar el "encoding" a UTF-8 y guardar y cerrar.
-
-  Paso 2: Conectar a Azure Database for MySQL e Importar la Base de Datos
-  - van con las credenciales de azure
-  - permitir mi ip en el firewall
-  - ejecutar el siguiente comando:
-  mysql -u azure@servidorconserjeria01 -p -h servidorconserjeria01.mysql.database.azure.com conserjeria_2
-
-
-
--------- ********** CREAR O DAR TODOS LOS PRIVILEGIOS AL USUARIO ********** ------------
-
-IMPORTANTE: 
-1. DEBES SABER TU IP PUBLICA
-- para ver mi ip publica desde la shell
-(Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
- en mi caso, la ip de mi equipo es : 181.43.248.16'
-
-2. DEBES crear un usuario con los permisos para onectarse al servidor de azure:
-2.1. entrar a la shell del equipo y conectarse a mysql
-  - ejecuta>  mysql -u root -p e ingresa tu pass y ya estas en modo sql
-  1.
-  CREATE USER 'azure@servidorconserjeria01'@'181.43.248.16' IDENTIFIED BY 'Estrella.23';
-
-  2.Otorgar permisos al usuario:
-  GRANT USAGE ON *.* TO 'azure@servidorconserjeria01'@'181.43.248.16';
-
-  GRANT ALL PRIVILEGES ON *.* TO 'azure@servidorconserjeria01'@'181.43.248.16';
-
-  FLUSH PRIVILEGES;
-
-  -------------- *************** FIN **************** ----------------
-
-  CONECTARME A MI BASE DA DEATOS DESDE LA SHELL DE AZURE
-  1. conectar a azure e ir al servidor y abrir shell
-  2. escribir mysql -h servidorconserjeria01.mysql.database.azure.com -u azure@servidorconserjeria01 -p
-
-
------ ******************** COPIAR LOS REGISTROS DE LOCAL A AZURE **********----
-
-1. Exporta los datos desde la base de datos local utilizando mysqldump y guárdalos en un archivo SQL en tu máquina local:
-  abrir shell en tu local y ejecutar:
-  PS C:\Users\Gloria> mysqldump -h localhost -P 3306 -u root -p conserjeria_2 > clientealfa_backup.sql
-
-2. en PowerShell, puedes usar Get-Content para leer el archivo y canalizarlo hacia mysql:
-    Get-Content clientealfa_backup.sql | mysql -h servidorconserjeria01.mysql.database.azure.com -P 3306 -u azure -p conserjeria_2
-
-3. Ver que las tablas se hayan caragdo con registros en la bd de azure
-
-
-----**************** EXPORTAR E IMPORTAR VARIAS TABLAS CON REGISTROS ENTRE 2 BASES DE DEATOS EN EL
- MISMO SERVIDOR *************-----------
-
-REQUISITO: debe estar conectada a ambos servidores y tener permisos privilegiados
-1. Guardar para exportar la data
-desde la shell:
-mysqldump -h servidorconserjeria01.mysql.database.azure.com -P 3306 -u azure -p conserjeria_2 > clientealfa_backup.sql
-
-2. luego ejecutar el siguiente comando para Importar y copiar la data a la base de datos destino
-desde la shell:
-Get-Content clientealfa_backup.sql | mysql -h servidorconserjeria01.mysql.database.azure.com -P 3306 -u azure -p conserjeria_2
-
-
-
-TUTORAIL APSOS DESPLIEGUE
-
-https://www.youtube.com/watch?v=gaNOw96cwjE&t=409s
-
-https://webappgestionconserjeria-f6cchganhnfpfsbc.brazilsouth-01.azurewebsites.net
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  

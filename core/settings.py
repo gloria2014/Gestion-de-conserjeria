@@ -1,15 +1,12 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
-
 import os
 import environ
+import sys
 
 # Configuración del entorno
 env = environ.Env(
     DEBUG=(bool, True)  # El valor por defecto para DEBUG es True
 )
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,14 +14,11 @@ CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Cargar las variables del archivo .env
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# SECRET_KEY y DEBUG
 SECRET_KEY = env('SECRET_KEY', default='S#perS3crEt_007')
 DEBUG = env('DEBUG')
 
-# Assets Management
 ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets') 
 
-# ALLOWED_HOSTS y CSRF_TRUSTED_ORIGINS
 ALLOWED_HOSTS = [
     'webappgestionconserjeria-f6cchganhnfpfsbc.brazilsouth-01.azurewebsites.net',
     '127.0.0.1',
@@ -47,7 +41,6 @@ INSTALLED_APPS = [
     'apps.home'
 ]
 
-# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Para servir archivos estáticos en producción
@@ -86,25 +79,36 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Configuración de la base de datos
+# Configuración de la base de datos Producción
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'conserjeria_7',
+#         'USER': 'azure',
+#         'PASSWORD': '*****',
+#         'HOST': 'servidorconserjeria01.mysql.database.azure.com',
+#         'PORT': '3306',
+#         'OPTIONS': {
+#             'ssl': {
+#                 'ca': os.path.join(BASE_DIR, 'DigiCertGlobalRootCA.crt.pem')  # Ruta relativa basada en BASE_DIR
+#             }
+#         }
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'conserjeria_1',
-        'USER': 'azure',
+        'NAME': 'conserjeria_10',
+        'USER': 'root',
         'PASSWORD': 'Estrella.23',
-        'HOST': 'servidorconserjeria01.mysql.database.azure.com',
-        'PORT': '3306',
-        'OPTIONS': {
-            'ssl': {
-                'ca': os.path.join(BASE_DIR, 'DigiCertGlobalRootCA.crt.pem')  # Ruta relativa basada en BASE_DIR
-            }
-        }
+        'HOST': 'localhost',
+        'PORT': '3306'
     }
 }
 
 
-# Validación de contraseñas
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -112,7 +116,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Localización e internacionalización
 LANGUAGE_CODE = 'es'
 TIME_ZONE = 'UTC'
 USE_I18N = True
